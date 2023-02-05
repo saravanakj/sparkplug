@@ -15,9 +15,9 @@ global using SparkPlug.Api.Controllers;
 global using SparkPlug.Api.Configuration;
 global using SparkPlug.Contracts;
 
+global using SparkPlug.Persistence.Abstractions;
 global using SparkPlug.Persistence.MongoDb;
-global using SparkPlug.Persistence.MongoDb.Model;
-global using SparkPlug.Persistence.MongoDb.Repository;
+global using SparkPlug.Persistence.MongoDb.Models;
 global using SparkPlug.Persistence.MongoDb.Attributes;
 global using SparkPlug.Persistence.MongoDb.Context;
 global using SparkPlug.Persistence.MongoDb.Configuration;

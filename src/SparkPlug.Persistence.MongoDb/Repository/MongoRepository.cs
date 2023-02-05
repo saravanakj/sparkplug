@@ -1,6 +1,6 @@
-namespace SparkPlug.Persistence.MongoDb.Repository;
+namespace SparkPlug.Persistence.MongoDb;
 
-public abstract class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : BaseModel<TId>, new()
+public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseModel<TId>, new()
 {
     internal readonly IMongoDbContext _context;
     internal readonly ILogger<MongoRepository<TId, TEntity>> _logger;

@@ -11,9 +11,9 @@ public static class Program
 
     public static WebApplicationBuilder AddService(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSparkPlugApi();
+        builder.Services.AddSparkPlugApi(builder.Configuration);
         // builder.Services.AddOptions<SparkPlugApiOptions>().Configure((options) => { });
-        builder.Services.AddSparkPlugMongoDb();
+        builder.Services.AddSparkPlugMongoDb(builder.Configuration);
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi((bearerOptions) =>
             {
@@ -40,5 +40,9 @@ public static class Program
     {
         services.AddScoped<PersonRepository>();
         services.AddScoped<DepartmentRepository>();
+        services.AddTransient<Person>();
+        services.AddTransient<Department>();
+        // services.AddScoped(typeof(IRepository<ObjectId, Department>), typeof(MongoRepository<ObjectId, Department>));
+        // services.AddScoped(typeof(IRepository<ObjectId, Person>), typeof(MongoRepository<ObjectId, Person>));
     }
 }

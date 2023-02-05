@@ -29,6 +29,7 @@ global using Microsoft.Extensions.Options;
 
 global using Microsoft.EntityFrameworkCore;
 global using Npgsql.EntityFrameworkCore.PostgreSQL;
+global using Npgsql;
 
 global using SparkPlug.Contracts;
 global using SparkPlug.Persistence.Abstractions;
@@ -37,8 +38,5 @@ global using SparkPlug.Persistence.PostgreSQL;
 // global using SparkPlug.Persistence.PostgreSQL.Attributes;
 // global using SparkPlug.Persistence.PostgreSQL.Model;
 global using SparkPlug.Persistence.PostgreSQL.Context;
-// global using SparkPlug.Persistence.PostgreSQL.Repository;
-// global using SparkPlug.Persistence.PostgreSQL.HealthCheck;
-// global using SparkPlug.Persistence.PostgreSQL.Configuration;
-
-
+global using SparkPlug.Persistence.PostgreSQL.HealthCheck;
+global using SparkPlug.Persistence.PostgreSQL.Configuration;

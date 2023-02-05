@@ -17,10 +17,8 @@ public class TransactionMiddleware
             await _next(context);
             scope.Complete();
         }
-        catch (Exception)
-        {
+        finally{
             scope.Dispose();
-            throw;
         }
     }
 }

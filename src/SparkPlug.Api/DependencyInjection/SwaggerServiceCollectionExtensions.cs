@@ -19,7 +19,7 @@ public static class SwaggerServiceCollectionExtensions
             .ToArray();
     }
 
-    public static IServiceCollection AddSwaggerApi(this IServiceCollection services)
+    public static IServiceCollection AddSwaggerApi(this IServiceCollection services, SparkPlugApiOptions options)
     {
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();

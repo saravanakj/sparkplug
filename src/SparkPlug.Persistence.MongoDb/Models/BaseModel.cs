@@ -1,4 +1,4 @@
-namespace SparkPlug.Persistence.MongoDb.Model;
+namespace SparkPlug.Persistence.MongoDb.Models;
 
 [BsonIgnoreExtraElements]
 public abstract class BaseModel<TId> : IBaseModel<TId>

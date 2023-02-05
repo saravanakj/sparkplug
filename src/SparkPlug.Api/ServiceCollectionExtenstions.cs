@@ -2,13 +2,14 @@
 
 public static class SparkPlugApiServiceCollectionExtenstions
 {
-    public static IServiceCollection AddSparkPlugApi(this IServiceCollection services, Action<SparkPlugApiOptions>? setupAction = default)
+    public static IServiceCollection AddSparkPlugApi(this IServiceCollection services, IConfiguration configuration, Action<SparkPlugApiOptions>? setupAction = default)
     {
-        services.AddOptions<SparkPlugApiOptions>()
-                .BindConfiguration(SparkPlugApiOptions.ConfigPath)
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
-        services.AddSwaggerApi();
+        services.AddOptions<SparkPlugApiOptions>().BindConfiguration(SparkPlugApiOptions.ConfigPath).ValidateDataAnnotations().ValidateOnStart();
+        services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<SparkPlugApiOptions>>().Value);
+        // services.Configure<SparkPlugApiOptions>(configuration.GetSection(SparkPlugApiOptions.ConfigPath));
+        var config = new SparkPlugApiOptions();
+        configuration.Bind(SparkPlugApiOptions.ConfigPath, config);
+        services.AddSwaggerApi(config);
         services.AddHealthChecks();
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
                 .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,,>))));
@@ -22,6 +23,7 @@ public static class SparkPlugApiServiceCollectionExtenstions
     public static void UseSparkPlugApi(this WebApplication app)
     {
         if (app.Environment.IsDevelopment()) { app.UseSwaggerApi(); }
+        app.UseGlobalExceptionHandling();
         app.MapGet("/", async context => await context.Response.WriteAsync("Running!..."));
         app.MapGet("/api", (IOptions<SparkPlugApiOptions> options) => options?.Value);
         app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = healthCheck => healthCheck.Tags.Contains("all") });
@@ -32,6 +34,6 @@ public static class SparkPlugApiServiceCollectionExtenstions
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
-        app.UseGlobalExceptionHandling();
+
     }
 }
