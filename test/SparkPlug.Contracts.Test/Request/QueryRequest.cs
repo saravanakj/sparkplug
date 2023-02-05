@@ -81,6 +81,7 @@ public class Test_QueryRequest
             .OrWhere((cf) => cf.AndEqual("id", "2").AndEqual("name", "test2"))
             .Sort("id", Direction.Ascending)
             .Page(new PageContext(10, 100));
+        Assert.NotNull(ar);
     }
 
     [Fact]
@@ -89,5 +90,6 @@ public class Test_QueryRequest
         var where = new CompositeFilter(CompositeOperator.And)
             .AndEqual("name", "test")
             .And((cf) => cf.AndEqual("id", "2").AndEqual("name", "test2"));
+        Assert.NotNull(where);
     }
 }

@@ -2,7 +2,6 @@ namespace SparkPlug.Contracts;
 
 public class QueryRequest : ApiRequest, IQueryRequest
 {
-    public QueryRequest() { }
     public QueryRequest(string[]? select = null, IFilter? where = null, IOrder[]? sort = null, IPageContext? page = null)
     {
         Select = select;
