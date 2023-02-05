@@ -444,6 +444,9 @@ $RECYCLE.BIN/
 .idea/
 *.sln.iml
 
+# Sonarqube
+.sonarqube
+
 ##
 ## Visual Studio Code
 ##
