@@ -22,7 +22,6 @@
     [Ref. 2 Authorization Configuration in Swagger](https://www.infoworld.com/article/3650668/implement-authorization-for-swagger-in-aspnet-core-6.html)
 
 
-
 6. [Environmnt Variable](https://www.mailslurp.com/blog/how-to-set-appsettings-config-property-with-environment-variable/)
 7. [Template Engines](https://www.libhunt.com/compare-Handlebars.Net-vs-dotliquid)
 8. [WebApi Samples](https://github.com/dotnet/AspNetCore.Docs/tree/main/aspnetcore)
@@ -56,6 +55,8 @@
 25. Github Readme File Reference 
     [Nuget, Build, Other dotnet setup](https://github.com/aspnetboilerplate/aspnetboilerplate)
 
+26. Web Api Development Reference
+    [ABP Framework](https://abp.io/?_ga=2.23733490.952085864.1676135167-1712102471.1662221989)
 
 ## DevOps Reference
 1. [Bump Version Number](https://github.com/marketplace/actions/dotnet-bump-versions)

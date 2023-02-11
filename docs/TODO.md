@@ -16,7 +16,12 @@
 6. Dynamically add api version in Swagger docs.
 8. Generick Cache interface need to be implement for SparkPlug.Api
 9. Update config if the configuration is modifyed in the cloud.
-
+10. Functional Module list
+    a. Authorization APIs 
+        1. Id
+        2. ResourceName
+        3. 
+    b. 
 
 
 

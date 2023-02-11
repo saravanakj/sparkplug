@@ -4,6 +4,7 @@ public static class SparkPlugApiServiceCollectionExtenstions
 {
     public static IServiceCollection AddSparkPlugApi(this IServiceCollection services, IConfiguration configuration, Action<SparkPlugApiOptions>? setupAction = default)
     {
+        services.AddHttpContextAccessor();
         services.AddOptions();
         var options = configuration.GetSection(SparkPlugApiOptions.ConfigPath);
         services.Configure<SparkPlugApiOptions>(options);

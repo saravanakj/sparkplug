@@ -3,7 +3,7 @@ name: Dotnet 7 Build
 on:
   push:
     paths:
-      - src/SparkPlug.Persistence.Abstraction
+      - src/SparkPlug.Persistence.Abstractions
     # paths-ignore:
     #   - '.vscode/**'
     #   - 'sample/**'
@@ -14,15 +14,15 @@ on:
     branches: [ "feature/*" ]
   pull_request:
     paths:
-      - src/SparkPlug.Persistence.Abstraction
+      - src/SparkPlug.Persistence.Abstractions
     branches: [ "main" ]
 
 env:
-  PROJECT: src/SparkPlug.Persistence.Abstraction/SparkPlug.Persistence.Abstraction.csproj
+  PROJECT: src/SparkPlug.Persistence.Abstractions/SparkPlug.Persistence.Abstractions.csproj
 
 jobs:
   build:
-    name: Build SparkPlug.Persistence.Abstraction App
+    name: Build SparkPlug.Persistence.Abstractions App
     runs-on: ${{ matrix.os }}
     strategy:
         matrix:

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Api.Abstractions"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Contracts", "SparkPlug.Contracts\SparkPlug.Contracts.csproj", "{FA9B87ED-D556-4176-8115-3004F1761E53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.Abstraction", "SparkPlug.Persistence.Abstraction\SparkPlug.Persistence.Abstraction.csproj", "{E46EAE01-3C7B-4B8C-82B5-B56E26D496C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.Abstractions", "SparkPlug.Persistence.Abstractions\SparkPlug.Persistence.Abstractions.csproj", "{E46EAE01-3C7B-4B8C-82B5-B56E26D496C6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.MongoDb", "SparkPlug.Persistence.MongoDb\SparkPlug.Persistence.MongoDb.csproj", "{C578D0D2-52CC-4182-B219-E73181C35539}"
 EndProject
