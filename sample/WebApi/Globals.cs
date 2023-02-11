@@ -22,5 +22,4 @@ global using SparkPlug.Persistence.MongoDb.Attributes;
 global using SparkPlug.Persistence.MongoDb.Context;
 global using SparkPlug.Persistence.MongoDb.Configuration;
 
-global using SparkPlug.Sample.WebApi.Repositories;
 global using SparkPlug.Sample.WebApi.Models;

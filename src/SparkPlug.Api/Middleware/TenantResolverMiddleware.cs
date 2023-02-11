@@ -3,20 +3,18 @@ namespace SparkPlug.Api.Middleware;
 public class TenantResolverMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ITenantResolver _tenantResolver;
+    private readonly ITenant _tenant;
 
-    public TenantResolverMiddleware(RequestDelegate next, ITenantResolver tenantResolver)
+    public TenantResolverMiddleware(RequestDelegate next, ITenant tenant)
     {
         _next = next;
-        _tenantResolver = tenantResolver;
+        _tenant = tenant;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         // var tenantId = context.Request.Headers["TenantId"]; // Read form header
         // var tenantId = context.Request.Query["TenantId"]; // Read from QueryString
-        var tenantId = context.GetRouteValue("tenantId")?.ToString();
-
         // Get Tenent Id from Payload message.
         // string tenantId = null;
         // if (context.Request.Method == HttpMethod.Post.Method || context.Request.Method == HttpMethod.Put.Method)
@@ -30,7 +28,9 @@ public class TenantResolverMiddleware
         //     context.Items["TenantId"] = tenantId;
         // }
 
-        context.Items["Tenant"] = _tenantResolver.ResolveAsync(tenantId);
+        var tenantId = context.GetRouteValue("tenant")?.ToString();
+        if (string.IsNullOrWhiteSpace(tenantId)) throw new Exception("Bad tenant id");
+        context.Items["Tenant"] = await _tenant.GetTenantAsync(tenantId);
         // context.Request.Path = new PathString(path);
         await _next(context);
     }

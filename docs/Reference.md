@@ -47,6 +47,15 @@
 
 23. Multi Tenancy 
     [Ref. 1](https://codewithmukesh.com/blog/multitenancy-in-aspnet-core/)
+    [Ref. 2](https://learn.microsoft.com/en-us/ef/core/miscellaneous/multitenancy)
+
+24. REST Patch Api 
+    [Javascript](https://www.npmjs.com/package/rfc6902)
+    [JSON Patch Document C#](https://learn.microsoft.com/en-us/aspnet/core/web-api/jsonpatch?view=aspnetcore-7.0)
+
+25. Github Readme File Reference 
+    [Nuget, Build, Other dotnet setup](https://github.com/aspnetboilerplate/aspnetboilerplate)
+
 
 ## DevOps Reference
 1. [Bump Version Number](https://github.com/marketplace/actions/dotnet-bump-versions)

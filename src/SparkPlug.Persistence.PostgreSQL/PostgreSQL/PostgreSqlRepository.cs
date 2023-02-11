@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.PostgreSQL;
 
-public class PostgreSqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseModel<TId>, new()
+public class PostgreSqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
 {
     public Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
     {

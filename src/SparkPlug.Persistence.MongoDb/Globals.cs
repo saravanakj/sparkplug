@@ -11,6 +11,8 @@ global using System.Threading;
 global using System.Runtime.Serialization;
 global using System.Text;
 global using System.ComponentModel.DataAnnotations;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +26,6 @@ global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.AspNetCore.Mvc.ApplicationModels;
-global using System.Text.Json;
 global using Microsoft.Extensions.Options;
 
 global using MongoDB.Driver;

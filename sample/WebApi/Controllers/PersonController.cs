@@ -1,9 +1,9 @@
 namespace SparkPlug.Sample.WebApi.Controllers;
 
 [ApiController, Route("person"), Authorize, ApiExplorerSettings(GroupName = "v1")]
-public class PersonController : BaseController<PersonRepository, Person, ObjectId>
+public class PersonController : BaseController<Repository<String, Person>, Person, String>
 {
-    public PersonController(ILogger<PersonController> logger, PersonRepository repository) : base(logger, repository) { }
+    public PersonController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     [HttpGet("name/{name}")]
     public async Task<IEnumerable<Person>> GetByName(String name)

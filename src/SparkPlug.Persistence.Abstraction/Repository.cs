@@ -1,11 +1,12 @@
 namespace SparkPlug.Persistence.Abstractions;
 
-public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseModel<TId>, new()
+public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
 {
     private readonly IRepository<TId, TEntity> _repository;
-    public Repository(IRepository<TId, TEntity> repository)
+    public Repository(IServiceProvider serviceProvider)
     {
-        _repository = repository;
+        var repositoryProvider = serviceProvider.GetRequiredService<IRepositoryProvider>();
+        _repository = repositoryProvider.GetRepository<TId, TEntity>();
     }
 
     public Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)

@@ -5,6 +5,7 @@ public class MongoDbContext : IMongoDbContext
     public IMongoDatabase Database { get; }
     public MongoDbContext(SparkPlugMongoDbOptions options)
     {
+        //TODO: Get tenent object from HttpContext option and create mongo client
         var _mongoClient = GetClient(options.ConnectionString);
         Database = _mongoClient.GetDatabase(options.DatabaseName);
     }

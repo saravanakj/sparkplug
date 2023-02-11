@@ -1,7 +1,7 @@
 namespace SparkPlug.Persistence.MongoDb.Models;
 
 [BsonIgnoreExtraElements]
-public abstract class BaseModel<TId> : IBaseModel<TId>
+public abstract class BaseEntity<TId> : IBaseEntity<TId>
 {
     [BsonElement("_id")]
     [BsonId]

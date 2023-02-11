@@ -1,13 +1,15 @@
 namespace SparkPlug.Api.Controllers;
 
-public class BaseController<TRepo, TEntity, TId> : ControllerBase where TRepo : IRepository<TId, TEntity> where TEntity : IBaseModel<TId>
+public abstract class BaseController<TRepo, TEntity, TId> : ControllerBase where TRepo : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>
 {
     protected readonly TRepo _repository;
     protected readonly ILogger<BaseController<TRepo, TEntity, TId>> _logger;
+    protected readonly IServiceProvider _serviceProvider;
 
-    public BaseController(ILogger<BaseController<TRepo, TEntity, TId>> logger, TRepo repository)
+    protected BaseController(IServiceProvider serviceProvider)
     {
-        _logger = logger;
-        _repository = repository;
+        _serviceProvider = serviceProvider;
+        _repository = serviceProvider.GetRequiredService<TRepo>();
+        _logger = serviceProvider.GetRequiredService<ILogger<BaseController<TRepo, TEntity, TId>>>();
     }
 }

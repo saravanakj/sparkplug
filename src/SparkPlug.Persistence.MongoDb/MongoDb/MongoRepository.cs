@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.MongoDb;
 
-public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseModel<TId>, new()
+public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
 {
     internal readonly IMongoDbContext _context;
     internal readonly ILogger<MongoRepository<TId, TEntity>> _logger;
@@ -26,10 +26,11 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         }
         return collectionName;
     }
-    protected MongoRepository(IMongoDbContext context, ILogger<MongoRepository<TId, TEntity>> logger)
+    // protected MongoRepository(IMongoDbContext context, ILogger<MongoRepository<TId, TEntity>> logger)
+    public MongoRepository(IServiceProvider serviceProvider)
     {
-        _context = context;
-        _logger = logger;
+        _context = serviceProvider.GetRequiredService<IMongoDbContext>();
+        _logger = serviceProvider.GetRequiredService<ILogger<MongoRepository<TId, TEntity>>>();
     }
     public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
     {
@@ -127,7 +128,7 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         for (var i = 0; i < properties.Length; i++)
         {
             var property = properties[i];
-            if (property.Name.Equals(nameof(IBaseModel<TId>.Id), StringComparison.OrdinalIgnoreCase))
+            if (property.Name.Equals(nameof(IBaseEntity<TId>.Id), StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -154,7 +155,11 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
     }
     public virtual FilterDefinition<TEntity> GetIdFilterDefinition(TId id)
     {
-        return GetFilterBuilder().Eq("_id", id);
+        Type genericType = typeof(TId);
+        ObjectId? oid = genericType == typeof(ObjectId)
+        ? (ObjectId?)Convert.ChangeType(default(TId), genericType) : genericType == typeof(string)
+        ? ObjectId.Parse(id as string) : throw new ArgumentException("Id type should be ObjectId or string");
+        return GetFilterBuilder().Eq("_id", oid);
     }
     public UpdateDefinitionBuilder<TEntity> GetUpdateBuilder()
     {
@@ -166,10 +171,9 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
     }
     public PipelineDefinition<ChangeStreamDocument<BsonDocument>, BsonDocument> GetPipelineDefinition()
     {
-        var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
+        return new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
                 .Match(x => x.OperationType == ChangeStreamOperationType.Insert || x.OperationType == ChangeStreamOperationType.Update || x.OperationType == ChangeStreamOperationType.Replace)
                 .AppendStage<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>, BsonDocument>("{ $project: { '_id': 1, 'fullDocument': 1, 'ns': 1, 'documentKey': 1 }}");
-        return pipeline;
     }
     public ChangeStreamOptions GetChangeStreamOptions(ChangeStreamFullDocumentOption option)
     {

@@ -1,8 +1,8 @@
-// namespace SparkPlug.Persistence.Abstractions;
+namespace SparkPlug.Persistence.Abstractions;
 
-// public interface ITenantOptions
-// {
-//     public string Name { get; set; }
-//     public string TenantID { get; set; }
-//     public string ConnectionString { get; set; }
-// }
+public interface ITenantOptions
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public string ConnectionString { get; set; }
+}

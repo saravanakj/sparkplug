@@ -1,7 +1,7 @@
 
-namespace SparkPlug.Api.Abstractions.Tenant;
+// namespace SparkPlug.Api.Abstractions.Tenant;
 
-public interface ITenantResolver
-{
-    Task<ITenant> ResolveAsync(string? tenantId);
-}
+// public interface ITenantResolver
+// {
+//     Task<ITenant> ResolveAsync(string? tenantId);
+// }

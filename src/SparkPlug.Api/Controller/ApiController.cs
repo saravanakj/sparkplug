@@ -1,15 +1,14 @@
 namespace SparkPlug.Api.Controllers;
 
 [ApiExplorerSettings(GroupName = "Auto Generated")]
-public class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, TEntity, TId> where TRepo : IRepository<TId, TEntity> where TEntity : IBaseModel<TId>
+public sealed class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, TEntity, TId> where TRepo : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
 {
-    public ApiController(ILogger<ApiController<TRepo, TEntity, TId>> logger, TRepo repository) : base(logger, repository) { }
+    public ApiController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     [HttpGet]
     public async Task<IEnumerable<TEntity>> List(QueryRequest request)
     {
-        var recs = await _repository.ListAsync(request);
-        return recs;
+        return await _repository.ListAsync(request);
     }
 
     [HttpPost]

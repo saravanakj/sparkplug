@@ -1,7 +1,6 @@
 namespace SparkPlug.Sample.WebApi.Repositories;
 
-[Api("person")]
-public class PersonRepository : Repository<ObjectId, Person>
+public class PersonRepository : Repository<string, Person>
 {
-    public PersonRepository(IRepository<ObjectId, Person> repository) : base(repository) { }
+    public PersonRepository(IServiceProvider serviceProvider) : base(serviceProvider) { }
 }
