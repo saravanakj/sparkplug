@@ -2,13 +2,13 @@ namespace SparkPlug.Persistence.MongoDb;
 
 public static class SparkPlugMongoDbServiceCollectionExtenstions
 {
-    public static void AddSparkPlugMongoDb(this IServiceCollection services, WebApplicationBuilder builder)
+    public static void AddSparkPlugMongoDb(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<SparkPlugMongoDbOptions>().BindConfiguration(SparkPlugMongoDbOptions.ConfigPath).ValidateDataAnnotations().ValidateOnStart();
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<SparkPlugMongoDbOptions>>().Value);
         // services.Configure<SparkPlugMongoDbOptions>(configuration.GetSection(SparkPlugMongoDbOptions.ConfigPath));
         var config = new SparkPlugMongoDbOptions();
-        builder.Configuration.Bind(SparkPlugMongoDbOptions.ConfigPath, config);
+        configuration.Bind(SparkPlugMongoDbOptions.ConfigPath, config);
 
         services.AddScoped<IMongoDbContext, MongoDbContext>();
         services.AddScoped(typeof(MongoRepository<,>));
@@ -17,8 +17,7 @@ public static class SparkPlugMongoDbServiceCollectionExtenstions
         services.AddHealthChecks().AddMongoDbCheck("MongoDb", config.ConnectionString, tags: new[] { "mongodb", "all" });
     }
 
-    public static void UseSparkPlugMongoDb(this WebApplication app)
+    public static void UseSparkPlugMongoDb(this IApplicationBuilder app, IServiceProvider serviceProvider)
     {
-        // app.MapGet("/db", ([FromServices] SparkPlugMongoDbOptions options) => options);
     }
 }

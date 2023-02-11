@@ -19,13 +19,13 @@ public static class SwaggerServiceCollectionExtensions
             .ToArray();
     }
 
-    public static IServiceCollection AddSwaggerApi(this IServiceCollection services, SparkPlugApiOptions options)
+    public static IServiceCollection AddSwagger(this IServiceCollection services, SparkPlugApiOptions options)
     {
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(swaggerOptions =>
             {
-                Array.ForEach(_apiVersions, version => swaggerOptions.SwaggerDoc(version, new OpenApiInfo { Version = version, Title = "Api" }));
+                Array.ForEach(_apiVersions, version => swaggerOptions.SwaggerDoc(version, new OpenApiInfo { Version = version, Title = $"{options.ApplicationName}Api" }));
                 swaggerOptions.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 swaggerOptions.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -50,7 +50,7 @@ public static class SwaggerServiceCollectionExtensions
         return services;
     }
 
-    public static void UseSwaggerApi(this WebApplication app)
+    public static void UseSwaggerApi(this IApplicationBuilder app)
     {
         app.UseSwagger();
         app.UseSwaggerUI(uiOptions => Array.ForEach(_apiVersions, version => uiOptions.SwaggerEndpoint($"/swagger/{version}/swagger.json", version)));

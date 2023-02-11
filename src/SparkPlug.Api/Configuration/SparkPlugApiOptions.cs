@@ -6,10 +6,11 @@ public class SparkPlugApiOptions
     public SparkPlugApiOptions()
     {
         ApplicationName = string.Empty;
-        IsMultiTenant = false;
+        PathBase = "api";
     }
 
     [Required]
     public string ApplicationName { get; set; }
-    public bool IsMultiTenant { get; set; }
+    public string PathBase { get; set; }
+    public bool IsMultiTenant { get => PathBase.Contains($"{{{SparkPlugApiConstants.Tenant}}}"); }
 }

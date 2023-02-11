@@ -2,16 +2,16 @@
 
 public static class SparkPlugApiServiceCollectionExtenstions
 {
-    public static IServiceCollection AddSparkPlugApi(this IServiceCollection services, WebApplicationBuilder builder, Action<SparkPlugApiOptions>? setupAction = default)
+    public static IServiceCollection AddSparkPlugApi(this IServiceCollection services, IConfiguration configuration, Action<SparkPlugApiOptions>? setupAction = default)
     {
         // builder.WebHost.UseUrls("http://0.0.0.0:1234/{tenant}/{version}/api");
         services.AddOptions<SparkPlugApiOptions>().BindConfiguration(SparkPlugApiOptions.ConfigPath).ValidateDataAnnotations().ValidateOnStart();
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<SparkPlugApiOptions>>().Value);
         // services.Configure<SparkPlugApiOptions>(configuration.GetSection(SparkPlugApiOptions.ConfigPath));
         var config = new SparkPlugApiOptions();
-        builder.Configuration.Bind(SparkPlugApiOptions.ConfigPath, config);
-        services.AddSwaggerApi(config);
-        services.AddHealthChecks();
+        configuration.Bind(SparkPlugApiOptions.ConfigPath, config);
+
+        services.AddSwagger(config);
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         services.AddGenericTypes();
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
@@ -22,22 +22,22 @@ public static class SparkPlugApiServiceCollectionExtenstions
         return services;
     }
 
-    public static void UseSparkPlugApi(this WebApplication app)
+    public static void UseSparkPlugApi(this IApplicationBuilder app, IServiceProvider serviceProvider)
     {
-        var config = new SparkPlugApiOptions();
-        app.Configuration.Bind(SparkPlugApiOptions.ConfigPath, config);
-        if (app.Environment.IsDevelopment()) { app.UseSwaggerApi(); }
+        var config = serviceProvider.GetRequiredService<SparkPlugApiOptions>();
+        var env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+        app.UsePathBase(config.PathBase);
+        if (env.IsDevelopment()) { app.UseSwagger(); }
         app.UseGlobalExceptionHandling();
-        app.MapGet("/", async context => await context.Response.WriteAsync("Running!..."));
-        app.MapGet("/api", (IOptions<SparkPlugApiOptions> options) => options?.Value);
-        app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = healthCheck => healthCheck.Tags.Contains("all") });
-        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
         app.UseTransactionMiddleware();
         if (config.IsMultiTenant) app.UseTenantResolverMiddleware();
         // app.UseHttpsRedirection();
+        app.UseSwaggerApi();
+        app.UseHealthChecks();
         app.UseRouting();
+        app.UseEndpoints(endpoints => endpoints.MapGet("/", async context => await context.Response.WriteAsync("Running!...")));
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
+        app.UseEndpoints(endpoints => endpoints.MapControllers());
     }
 }

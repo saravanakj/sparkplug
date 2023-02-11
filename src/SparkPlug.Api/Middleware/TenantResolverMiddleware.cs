@@ -28,7 +28,7 @@ public class TenantResolverMiddleware
         //     context.Items["TenantId"] = tenantId;
         // }
 
-        var tenantId = context.GetRouteValue("tenant")?.ToString();
+        var tenantId = context.GetRouteValue(SparkPlugApiConstants.Tenant)?.ToString();
         if (string.IsNullOrWhiteSpace(tenantId)) throw new Exception("Bad tenant id");
         context.Items["Tenant"] = await _tenant.GetTenantAsync(tenantId);
         // context.Request.Path = new PathString(path);
