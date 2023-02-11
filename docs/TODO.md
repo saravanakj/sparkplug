@@ -12,9 +12,15 @@
     e. .Patch("/user/10")
 
 3. SparkPlug.Api Unit Testing with MongoDb
-4. All Rest API make it workable with MongoDb sample Application.
 5. GenericTypeControllerFeatureProvider - Add controller to feature.Controllers with sapcific api verbs (only GET and POST like).
 6. Dynamically add api version in Swagger docs.
-7. Transactions handling 
 8. Generick Cache interface need to be implement for SparkPlug.Api
 9. Update config if the configuration is modifyed in the cloud.
+
+
+
+
+# Done
+
+4. All Rest API make it workable with MongoDb sample Application. - Done
+7. Transactions handling - Done
