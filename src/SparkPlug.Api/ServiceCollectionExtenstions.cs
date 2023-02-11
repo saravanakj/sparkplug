@@ -4,14 +4,12 @@ public static class SparkPlugApiServiceCollectionExtenstions
 {
     public static IServiceCollection AddSparkPlugApi(this IServiceCollection services, IConfiguration configuration, Action<SparkPlugApiOptions>? setupAction = default)
     {
-        // builder.WebHost.UseUrls("http://0.0.0.0:1234/{tenant}/{version}/api");
-        services.AddOptions<SparkPlugApiOptions>().BindConfiguration(SparkPlugApiOptions.ConfigPath).ValidateDataAnnotations().ValidateOnStart();
-        services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<SparkPlugApiOptions>>().Value);
-        // services.Configure<SparkPlugApiOptions>(configuration.GetSection(SparkPlugApiOptions.ConfigPath));
-        var config = new SparkPlugApiOptions();
-        configuration.Bind(SparkPlugApiOptions.ConfigPath, config);
-
+        services.AddOptions();
+        var options = configuration.GetSection(SparkPlugApiOptions.ConfigPath);
+        services.Configure<SparkPlugApiOptions>(options);
+        var config = options.Get<SparkPlugApiOptions>() ?? throw new Exception("Api Options not configured");
         services.AddSwagger(config);
+        services.AddTransient(typeof(IOptions<>), typeof(OptionsManager<>));
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         services.AddGenericTypes();
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
@@ -24,13 +22,13 @@ public static class SparkPlugApiServiceCollectionExtenstions
 
     public static void UseSparkPlugApi(this IApplicationBuilder app, IServiceProvider serviceProvider)
     {
-        var config = serviceProvider.GetRequiredService<SparkPlugApiOptions>();
+        var config = serviceProvider.GetRequiredService<IOptions<SparkPlugApiOptions>>();
         var env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-        app.UsePathBase(config.PathBase);
+        app.UsePathBase(config.Value.PathBase);
         if (env.IsDevelopment()) { app.UseSwagger(); }
         app.UseGlobalExceptionHandling();
         app.UseTransactionMiddleware();
-        if (config.IsMultiTenant) app.UseTenantResolverMiddleware();
+        if (config.Value.IsMultiTenant) app.UseTenantResolverMiddleware();
         // app.UseHttpsRedirection();
         app.UseSwaggerApi();
         app.UseHealthChecks();

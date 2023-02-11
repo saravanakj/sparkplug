@@ -4,15 +4,16 @@ public static class SparkPlugPostgreSQLServiceCollectionExtenstions
 {
     public static void AddSparkPlugPostgreSQL(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOptions<SparkPlugPostgreSqlOptions>().BindConfiguration(SparkPlugPostgreSqlOptions.ConfigPath).ValidateDataAnnotations().ValidateOnStart();
-        services.Configure<SparkPlugPostgreSqlOptions>(configuration.GetSection(SparkPlugPostgreSqlOptions.ConfigPath));
-        var config = configuration.GetValue<SparkPlugPostgreSqlOptions>(SparkPlugPostgreSqlOptions.ConfigPath);
+        var options = configuration.GetSection(SparkPlugPostgreSqlOptions.ConfigPath);
+        services.Configure<SparkPlugPostgreSqlOptions>(options);
+        var config = options.Get<SparkPlugPostgreSqlOptions>() ?? throw new Exception("PostgreSql Options not configured");
+
         services.AddSingleton<IPostgreSqlDbContext, PostgreSqlDbContext>();
         services.AddScoped(typeof(IRepository<,>), typeof(PostgreSqlRepository<,>));
-        services.AddHealthChecks().AddPostgreSqlDbCheck("PostgreSqlDb", config!.ConnectionString, tags: new[] { "postgresqldb", "all" });
+        services.AddHealthChecks().AddPostgreSqlDbCheck("PostgreSqlDb", config.ConnectionString, tags: new[] { "postgresqldb", "all" });
     }
 
-    public static void UseSparkPlugMongoDb(this WebApplication app)
+    public static void UseSparkPlugMongoDb(this IApplicationBuilder app, IServiceProvider serviceProvider)
     {
         // app.MapGet("/db", ([FromServices] SparkPlugPostgreSqlOptions options) => options);
     }
