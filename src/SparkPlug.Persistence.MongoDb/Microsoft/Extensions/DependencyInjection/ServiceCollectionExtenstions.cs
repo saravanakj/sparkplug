@@ -1,4 +1,4 @@
-namespace SparkPlug.Persistence.MongoDb;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SparkPlugMongoDbServiceCollectionExtenstions
 {

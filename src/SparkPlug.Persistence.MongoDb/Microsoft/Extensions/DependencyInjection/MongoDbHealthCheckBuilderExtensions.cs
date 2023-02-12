@@ -1,4 +1,4 @@
-namespace SparkPlug.Persistence.MongoDb.HealthCheck;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class MongoDbHealthCheckBuilderExtensions
 {

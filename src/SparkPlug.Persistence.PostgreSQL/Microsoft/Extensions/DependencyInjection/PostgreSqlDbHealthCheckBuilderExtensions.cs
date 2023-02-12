@@ -1,4 +1,4 @@
-namespace SparkPlug.Persistence.PostgreSQL.HealthCheck;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class PostgreSqlDbHealthCheckBuilderExtensions
 {

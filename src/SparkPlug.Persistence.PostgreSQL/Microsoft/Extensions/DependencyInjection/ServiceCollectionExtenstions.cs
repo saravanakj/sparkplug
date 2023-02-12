@@ -1,4 +1,4 @@
-namespace SparkPlug.Persistence.PostgreSQL;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SparkPlugPostgreSQLServiceCollectionExtenstions
 {

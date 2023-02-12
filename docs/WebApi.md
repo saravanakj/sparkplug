@@ -12,10 +12,10 @@
 8. Monitoring and logging: Monitor the API's performance and usage to detect and diagnose issues, and log important events to help diagnose problems and improve the API.
 
 
-1. Program.cs               - 
-2. Startup.cs               - Not Required in Dotnet 7
-3. OpenApi Configuration    - 
-4. Dependecny Injection
+1. Program.cs               - Done
+2. Startup.cs               - Done
+3. OpenApi Configuration    - Done
+4. Dependecny Injection     - Done
     - Dotnet core DI
 5. Logging
     - Serilog
@@ -23,17 +23,17 @@
 6. Tracing
     - Azure Application Insights
 7. Configuration
-    - appsettings.json
-    - Azure Vault Configuration
-    - Kubernetes Config Map
+    - appsettings.json               - Done
+    - Azure Vault Configuration      - 
+    - Kubernetes Config Map          -
 8. Filters
-    - Global Exception Filter
+    - Global Exception Filter        - Done
     - Authentication Filter
-9. Exception Handling
+9. Exception Handling                - Done
 10. Health Check 
-    - Database Health Check
+    - Database Health Check          - Done
     - Local Resource Manual Health check
-    - Azure Service's Health Check
+    - Azure Service's Health Check  
 11. Monitoring
     - Azure Monitor
 12. Entity Framework
@@ -51,11 +51,14 @@
     - Azure Service Bus
     - Rabbit MQ
     - Kafka
-17. - Multi-Tenancy
+17. - Multi-Tenancy                 - Done
 17. CORS
 18. CI/CD pipleline
     - Github Actions
 19. Container
     - Docker Build
     - Helm Chart
-20. REST Api Maturity Model
+20. Caching 
+    - Distributed Memory Cache
+    - Distributed Redis Cache
+21. REST Api Maturity Model
