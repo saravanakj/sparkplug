@@ -36,6 +36,7 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.AspNetCore.Mvc.Filters;
 global using Microsoft.IdentityModel.Tokens;
 // global using Microsoft.AspNetCore.JsonPatch;
+global using Swashbuckle.AspNetCore.SwaggerGen;
 
 global using SparkPlug.Contracts;
 // global using SparkPlug.Api.Abstractions;

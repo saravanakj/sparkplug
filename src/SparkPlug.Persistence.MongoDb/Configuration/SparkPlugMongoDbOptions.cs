@@ -6,9 +6,7 @@ public class SparkPlugMongoDbOptions
     public SparkPlugMongoDbOptions()
     {
         ConnectionString = string.Empty;
-        DatabaseName = string.Empty;
     }
     [Required]
     public string ConnectionString { get; set; }
-    public string DatabaseName { get; set; }
 }

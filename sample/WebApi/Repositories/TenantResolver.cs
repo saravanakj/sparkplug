@@ -13,8 +13,7 @@ public class TenantResolver : ITenantResolver
         var options = _serviceProvider.GetRequiredService<IOptions<SparkPlugMongoDbOptions>>().Value;
         var dict = new Dictionary<string, string?>()
         {
-            { $"{nameof(TenantConfig)}:{nameof(options.ConnectionString)}", options.ConnectionString },
-            { $"{nameof(TenantConfig)}:{nameof(options.DatabaseName)}", options.DatabaseName }
+            { $"{nameof(TenantConfig)}:{nameof(options.ConnectionString)}", options.ConnectionString }
         };
         var result = new Tenant() { Options = dict };
         if (!string.IsNullOrWhiteSpace(id))

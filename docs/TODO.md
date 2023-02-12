@@ -17,13 +17,9 @@
 8. Generick Cache interface need to be implement for SparkPlug.Api
 9. Update config if the configuration is modifyed in the cloud.
 10. Functional Module list
-    a. Authorization APIs 
-        1. Id
-        2. ResourceName
-        3. 
-    b. 
-
-
+    a. RBAC based Authorization, UI Screens mappings for role
+    b. Multi-Tenancy Management
+    c. 
 
 # Done
 
