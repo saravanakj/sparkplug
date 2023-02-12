@@ -8,7 +8,7 @@ public class TenantResolver : ITenantResolver
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<ITenant> ResolveAsync(string id)
+    public async Task<ITenant> ResolveAsync(string? id)
     {
         var options = _serviceProvider.GetRequiredService<IOptions<SparkPlugMongoDbOptions>>().Value;
         var dict = new Dictionary<string, string?>()
@@ -20,7 +20,7 @@ public class TenantResolver : ITenantResolver
         {
             var repo = _serviceProvider.GetRequiredService<Repository<string, TenantDetails>>();
             var tenantDetails = await repo.GetAsync(id);
-            tenantDetails.Options.ForEach(x => dict.Add(x.Key, x.Value));
+            tenantDetails.Options.ForEach(x => dict[x.Key] = x.Value);
             result = new Tenant() { Id = tenantDetails.Id, Name = tenantDetails.Name, Options = dict };
         }
         return result;

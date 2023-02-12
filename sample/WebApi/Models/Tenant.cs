@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 namespace SparkPlug.Sample.WebApi.Models;
 
 [Collection("Tenants")]

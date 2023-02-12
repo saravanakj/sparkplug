@@ -20,6 +20,7 @@
     a. RBAC based Authorization, UI Screens mappings for role
     b. Multi-Tenancy Management
     c. 
+11. Distributed Cache interface implementation to cache data including Tenant information.
 
 # Done
 
