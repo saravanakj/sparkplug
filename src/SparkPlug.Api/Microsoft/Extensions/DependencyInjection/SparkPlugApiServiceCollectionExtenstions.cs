@@ -1,4 +1,4 @@
-﻿namespace SparkPlug.Api;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SparkPlugApiServiceCollectionExtenstions
 {
@@ -15,8 +15,8 @@ public static class SparkPlugApiServiceCollectionExtenstions
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         services.AddScoped(typeof(ITenantOptions<>), typeof(TenantOptionsManager<>));
         services.AddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.Items["Tenant"] as ITenant ?? Tenant.Default);
+        services.AddScoped(typeof(Repository<,>));
 
-        services.AddGenericTypes();
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
         .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,,>))));
         // .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

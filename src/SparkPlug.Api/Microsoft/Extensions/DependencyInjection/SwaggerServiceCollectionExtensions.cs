@@ -1,4 +1,4 @@
-namespace SparkPlug.Api;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SwaggerServiceCollectionExtensions
 {

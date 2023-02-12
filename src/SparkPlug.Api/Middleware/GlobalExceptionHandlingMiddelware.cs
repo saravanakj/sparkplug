@@ -21,9 +21,11 @@ public class GlobalExceptionHandlingMiddleware
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        return context.Response.WriteAsync($"An error occurred while processing your request. {exception.Message}");
+        var response = context.Response;
+        response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        response.ContentType = SparkPlugApiConstants.ContentType;
+        await context.Response.WriteAsJsonAsync(new JsonResult(new ErrorResponse("Internal Server Error", exception)));
     }
 }

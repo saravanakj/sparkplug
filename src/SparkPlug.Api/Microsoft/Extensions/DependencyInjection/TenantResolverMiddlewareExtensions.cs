@@ -1,4 +1,4 @@
-namespace SparkPlug.Api.Middleware;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class TenantResolverMiddlewareExtensions
 {
