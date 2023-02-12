@@ -13,6 +13,7 @@ public class Startup
         services.AddSparkPlugApi(Configuration);
         // builder.Services.AddOptions<SparkPlugApiOptions>().Configure((options) => { });
         services.AddSparkPlugMongoDb(Configuration);
+        services.AddScoped<ITenantResolver, TenantResolver>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi((bearerOptions) =>
             {

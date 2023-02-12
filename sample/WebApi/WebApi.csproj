@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\SparkPlug.Api\SparkPlug.Api.csproj" />
     <ProjectReference Include="..\..\src\SparkPlug.Contracts\SparkPlug.Contracts.csproj" />
     <ProjectReference Include="..\..\src\SparkPlug.Api.Abstractions\SparkPlug.Api.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\SparkPlug.Persistence.Abstractions\SparkPlug.Persistence.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\SparkPlug.Persistence.MongoDb\SparkPlug.Persistence.MongoDb.csproj" />
   </ItemGroup>
 

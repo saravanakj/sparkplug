@@ -10,8 +10,12 @@ public static class SparkPlugApiServiceCollectionExtenstions
         services.Configure<SparkPlugApiOptions>(options);
         var config = options.Get<SparkPlugApiOptions>() ?? throw new Exception("Api Options not configured");
         services.AddSwagger(config);
-        services.AddTransient(typeof(IOptions<>), typeof(OptionsManager<>));
+        // services.AddTransient(typeof(IOptions<>), typeof(OptionsManager<>));
+
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+        services.AddScoped(typeof(ITenantOptions<>), typeof(TenantOptionsManager<>));
+        services.AddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.Items["Tenant"] as ITenant ?? Tenant.Default);
+
         services.AddGenericTypes();
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
         .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,,>))));
@@ -29,7 +33,7 @@ public static class SparkPlugApiServiceCollectionExtenstions
         if (env.IsDevelopment()) { app.UseSwagger(); }
         app.UseGlobalExceptionHandling();
         app.UseTransactionMiddleware();
-        if (config.Value.IsMultiTenant) app.UseTenantResolverMiddleware();
+        app.UseTenantResolverMiddleware();
         // app.UseHttpsRedirection();
         app.UseSwaggerApi();
         app.UseHealthChecks();

@@ -3,9 +3,8 @@ namespace SparkPlug.Persistence.MongoDb.Context;
 public class MongoDbContext : IMongoDbContext
 {
     public IMongoDatabase Database { get; }
-    public MongoDbContext(IOptions<SparkPlugMongoDbOptions> options)
+    public MongoDbContext(ITenantOptions<TenantConfig> options)
     {
-        //TODO: Get tenent object from HttpContext option and create mongo client
         var _mongoClient = GetClient(options.Value.ConnectionString);
         Database = _mongoClient.GetDatabase(options.Value.DatabaseName);
     }

@@ -2,5 +2,7 @@ namespace SparkPlug.Persistence.Abstractions;
 
 public interface ITenant
 {
-    Task<ITenantOptions> GetTenantAsync(string id);
+    public string? Id { get; }
+    public string? Name { get; }
+    public IEnumerable<KeyValuePair<string, string?>> Options { get; }
 }

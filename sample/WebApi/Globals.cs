@@ -9,6 +9,8 @@ global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.Identity.Web;
 global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.Options;
 
 global using SparkPlug.Api;
 global using SparkPlug.Api.Controllers;
@@ -23,3 +25,4 @@ global using SparkPlug.Persistence.MongoDb.Context;
 global using SparkPlug.Persistence.MongoDb.Configuration;
 
 global using SparkPlug.Sample.WebApi.Models;
+global using SparkPlug.Sample.WebApi.Repositories;

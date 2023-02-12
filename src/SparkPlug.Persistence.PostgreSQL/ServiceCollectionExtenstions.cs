@@ -8,7 +8,7 @@ public static class SparkPlugPostgreSQLServiceCollectionExtenstions
         services.Configure<SparkPlugPostgreSqlOptions>(options);
         var config = options.Get<SparkPlugPostgreSqlOptions>() ?? throw new Exception("PostgreSql Options not configured");
 
-        services.AddSingleton<IPostgreSqlDbContext, PostgreSqlDbContext>();
+        services.AddScoped<IPostgreSqlDbContext, PostgreSqlDbContext>();
         services.AddScoped(typeof(IRepository<,>), typeof(PostgreSqlRepository<,>));
         services.AddHealthChecks().AddPostgreSqlDbCheck("PostgreSqlDb", config.ConnectionString, tags: new[] { "postgresqldb", "all" });
     }
