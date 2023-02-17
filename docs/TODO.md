@@ -21,6 +21,7 @@
     b. Multi-Tenancy Management
     c. 
 11. Distributed Cache interface implementation to cache data including Tenant information.
+12. OpenApi with API Scope declaration and C# attribute to define scope of the API.
 
 # Done
 

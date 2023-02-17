@@ -1,7 +1,7 @@
 namespace SparkPlug.Api.Controllers;
 
-[ApiExplorerSettings(GroupName = "Auto Generated")]
-public sealed class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, TEntity, TId> where TRepo : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
+[ApiExplorerSettings(GroupName = "Template")]
+public sealed class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, TEntity, TId> where TRepo : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
     public ApiController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
@@ -30,7 +30,7 @@ public sealed class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, T
     }
 
     [HttpPatch("{id}")]
-    public async Task<TEntity> Patch(TId id, [FromBody] CommandRequest<TEntity> rec)
+    public async Task<TEntity> Patch(TId id, [FromBody] CommandRequest<JsonPatchDocument<TEntity>> rec)
     {
         return await _repository.PatchAsync(id, rec);
     }

@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.Abstractions;
 
-public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
+public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
     private readonly IRepository<TId, TEntity> _repository;
     private readonly IServiceProvider _serviceProvider;
@@ -50,7 +50,7 @@ public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity 
         return _repository.ListAsync(request);
     }
 
-    public Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
+    public Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
     {
         return _repository.PatchAsync(id, request);
     }

@@ -6,6 +6,7 @@ global using Microsoft.AspNetCore.Mvc.ApplicationParts;
 global using Microsoft.AspNetCore.Mvc;
 global using MongoDB.Bson;
 global using Microsoft.AspNetCore.Authentication;
+global using Microsoft.AspNetCore.JsonPatch;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.Identity.Web;
 global using Microsoft.AspNetCore.Authorization;

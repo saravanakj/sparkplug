@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.PostgreSQL;
 
-public class PostgreSqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
+public class PostgreSqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
     public Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
     {
@@ -37,7 +37,7 @@ public class PostgreSqlRepository<TId, TEntity> : IRepository<TId, TEntity> wher
         throw new NotImplementedException();
     }
 
-    public Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
+    public Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
     {
         throw new NotImplementedException();
     }

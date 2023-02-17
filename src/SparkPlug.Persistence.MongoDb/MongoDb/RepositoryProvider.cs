@@ -7,7 +7,7 @@ public class MongoRepositoryProvider : IRepositoryProvider
     {
         _serviceProvider = serviceProvider;
     }
-    public IRepository<TId, TEntity> GetRepository<TId, TEntity>() where TEntity : IBaseEntity<TId>, new()
+    public IRepository<TId, TEntity> GetRepository<TId, TEntity>() where TEntity : class, IBaseEntity<TId>, new()
     {
         return _serviceProvider.GetRequiredService<MongoRepository<TId, TEntity>>();
     }

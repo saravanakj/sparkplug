@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.MongoDb;
 
-public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : IBaseEntity<TId>, new()
+public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
     internal readonly IMongoDbContext _context;
     internal readonly ILogger<MongoRepository<TId, TEntity>> _logger;
@@ -89,16 +89,15 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
     }
     public async Task<UpdateResult> UpdateAsync(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
     {
-        var result = await Collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
-        return result;
+        return await Collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
     }
-    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<TEntity> request)
+    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
     {
-        id = id ?? throw new ArgumentNullException(nameof(id));
-        var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
+        var patchDocument = request.Data ?? throw new UpdateEntityException("Entity is null");
         var filter = GetIdFilterDefinition(id);
-        var update = GetUpdateDef(entity, true);
-        await UpdateAsync(filter, update);
+        var entity = await Collection.Find(filter).FirstOrDefaultAsync();
+        patchDocument.ApplyTo(entity);
+        await Collection.ReplaceOneAsync(filter, entity);
         return entity;
     }
 

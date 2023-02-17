@@ -58,18 +58,18 @@ public static class SwaggerServiceCollectionExtensions
     }
 }
 
- public class SetBasePathFilter : IDocumentFilter
+public class SetBasePathFilter : IDocumentFilter
+{
+    private readonly SparkPlugApiOptions _options;
+    public SetBasePathFilter(IOptions<SparkPlugApiOptions> options)
     {
-        private readonly SparkPlugApiOptions _options;
-        public SetBasePathFilter(IOptions<SparkPlugApiOptions> options)
-        {
-            _options = options.Value;
-        }
-        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
-        {
-            swaggerDoc.Servers = new List<OpenApiServer>
+        _options = options.Value;
+    }
+    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    {
+        swaggerDoc.Servers = new List<OpenApiServer>
             {
                 new OpenApiServer { Url = _options.PathBase }
             };
-        }
     }
+}

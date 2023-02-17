@@ -18,9 +18,10 @@ public static class SparkPlugApiServiceCollectionExtenstions
         services.AddScoped(typeof(Repository<,>));
 
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
-        .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,,>))));
-        // .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-        services.AddControllers(options => options.Filters.Add(new SparkPlugExceptionFilterAttribute()));
+                .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,,>))));
+                // .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+        services.AddControllers(options => options.Filters.Add(new SparkPlugExceptionFilterAttribute()))
+                .AddNewtonsoftJson();
         if (setupAction != null) services.Configure(setupAction);
         return services;
     }

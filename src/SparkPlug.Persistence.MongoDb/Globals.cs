@@ -27,6 +27,7 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.AspNetCore.Mvc.ApplicationModels;
 global using Microsoft.Extensions.Options;
+global using Microsoft.AspNetCore.JsonPatch;
 
 global using MongoDB.Driver;
 global using MongoDB.Bson;
