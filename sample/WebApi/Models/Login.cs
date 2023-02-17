@@ -1,4 +1,4 @@
-namespace SparkPlug.Api.Models;
+namespace SparkPlug.Sample.WebApi.Models;
 
 public class Login
 {
