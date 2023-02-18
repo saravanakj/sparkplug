@@ -17,7 +17,7 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
             return _collection;
         }
     }
-    private static String GetCollectionName(Type type)
+    private static string GetCollectionName(Type type)
     {
         var collectionName = type.GetCustomAttribute<CollectionAttribute>()?.Name;
         if (string.IsNullOrWhiteSpace(collectionName))
