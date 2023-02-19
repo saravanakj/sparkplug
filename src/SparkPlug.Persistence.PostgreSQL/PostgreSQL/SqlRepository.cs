@@ -71,6 +71,13 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
 
         // return await query.ToListAsync();
     }
+    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
+    {
+        var entitiesTask = ListAsync(request);
+        var countTask = GetCountAsync(request);
+        await Task.WhenAll(entitiesTask, countTask).ConfigureAwait(false);
+        return (entitiesTask.Result, countTask.Result);
+    }
     public async Task<TEntity> GetAsync(TId id)
     {
         var tid = id ?? throw new QueryEntityException("Id is null");
@@ -116,7 +123,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
         await DbContext.SaveChangesAsync();
         return entityToDelete;
     }
-    public async Task<long> GetCountAsync(IQueryRequest request)
+    public async Task<long> GetCountAsync(IQueryRequest? request)
     {
         return await DbSet.LongCountAsync();
     }

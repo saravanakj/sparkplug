@@ -2,13 +2,11 @@ namespace SparkPlug.Contracts;
 
 public class QueryResponse<TEntity> : ApiResponse, IQueryResponse<TEntity>
 {
-    public QueryResponse(string? code = null, string? message = null, TEntity[]? data = default, PageContext? pc = null, int? total = null) : base(code, message)
+    public QueryResponse(TEntity[]? data = default, IPageContext? pc = null)
     {
         Data = data;
         Page = pc;
-        Total = total;
     }
-    public int? Total { get; set; }
     public IPageContext? Page { get; set; }
     public TEntity[]? Data { get; set; }
 }
@@ -28,11 +26,6 @@ public static partial class Extensions
     public static IQueryResponse<TEntity> AddPageContext<TEntity>(this IQueryResponse<TEntity> source, IPageContext pc)
     {
         source.Page = pc;
-        return source;
-    }
-    public static IQueryResponse<TEntity> AddTotalRecord<TEntity>(this IQueryResponse<TEntity> source, int total)
-    {
-        source.Total = total;
         return source;
     }
     #endregion

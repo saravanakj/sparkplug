@@ -24,7 +24,7 @@ public class GlobalExceptionHandlingMiddleware
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var response = context.Response;
-        response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        response.StatusCode = StatusCodes.Status500InternalServerError;
         response.ContentType = SparkPlugApiConstants.ContentType;
         await context.Response.WriteAsJsonAsync(new JsonResult(new ErrorResponse("Internal Server Error", exception)));
     }

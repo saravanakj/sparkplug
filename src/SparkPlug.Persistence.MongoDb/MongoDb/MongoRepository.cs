@@ -38,8 +38,16 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         var sort = GetSort(request?.Sort);
         var pc = request?.Page ?? new PageContext(1, 100);
         var filter = GetFilterDefinition(request?.Where);
-        return await GetAsync(projection, filter, sort, pc);
+        return await GetAsync(projection, filter, sort, pc).ConfigureAwait(false);
     }
+    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
+    {
+        var entitiesTask = ListAsync(request);
+        var countTask = GetCountAsync(request);
+        await Task.WhenAll(entitiesTask, countTask).ConfigureAwait(false);
+        return (entitiesTask.Result, countTask.Result);
+    }
+
     public async Task<TEntity> GetAsync(TId id)
     {
         var filter = GetIdFilterDefinition(id);
@@ -114,9 +122,9 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
         return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new DeleteEntityException($"Nothing is deleted. Id={id}");
     }
-    public async Task<long> GetCountAsync(IQueryRequest request)
+    public async Task<long> GetCountAsync(IQueryRequest? request)
     {
-        var filter = GetFilterDefinition(request.Where) ?? GetFilterBuilder().Empty;
+        var filter = GetFilterDefinition(request?.Where) ?? GetFilterBuilder().Empty;
         var result = Collection.Find(filter);
         return await result.CountDocumentsAsync().ConfigureAwait(false);
     }

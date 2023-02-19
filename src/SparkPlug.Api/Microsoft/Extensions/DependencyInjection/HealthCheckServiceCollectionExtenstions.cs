@@ -10,7 +10,7 @@ public static class HealthCheckServiceCollectionExtensions
             ResponseWriter = async (context, report) =>
             {
                 context.Response.ContentType = "application/json";
-                var result = JsonSerializer.Serialize(new
+                var result = JsonConvert.SerializeObject(new
                 {
                     status = report.Status.ToString(),
                     errors = report.Entries.Select(e => e.Value.Exception?.Message)

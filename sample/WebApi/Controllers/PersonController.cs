@@ -6,19 +6,21 @@ public class PersonController : BaseController<Repository<string, Person>, Perso
     public PersonController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     [HttpGet("name/{name}")]
-    public async Task<IEnumerable<Person>> GetByName(String name)
+    public async Task<IActionResult> GetByName(String name)
     {
         var req = new QueryRequest().Where("PersonName", FieldOperator.Equal, name);
-        return await _repository.ListAsync(req);
+        var entities = await _repository.ListAsync(req);
+        return Ok(entities);
     }
 
     [HttpGet("pathc-request-object")]
-    public async Task<CommandRequest<JsonPatchDocument<Person>>> GetPatchReqestObject()
+    public async Task<IActionResult> GetPatchReqestObject()
     {
         var patchDoc = new JsonPatchDocument<Person>();
         patchDoc.Replace(p => p.PersonName, "John Doe");
         patchDoc.Replace(p => p.Salary, 30000000);
         var req = new CommandRequest<JsonPatchDocument<Person>>(patchDoc);
-        return await Task.FromResult(req);
+        var response = await Task.FromResult(req);
+        return Ok(response);
     }
 }

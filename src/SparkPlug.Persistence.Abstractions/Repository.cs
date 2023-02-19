@@ -35,7 +35,7 @@ public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity 
         return _repository.GetAsync(id);
     }
 
-    public Task<long> GetCountAsync(IQueryRequest request)
+    public Task<long> GetCountAsync(IQueryRequest? request)
     {
         return _repository.GetCountAsync(request);
     }
@@ -49,6 +49,10 @@ public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity 
     {
         return _repository.ListAsync(request);
     }
+     public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
+     {
+        return await _repository.ListWithCountAsync(request);
+     }
 
     public Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
     {

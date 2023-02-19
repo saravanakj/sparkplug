@@ -2,7 +2,7 @@ namespace SparkPlug.Contracts;
 
 public class CommandResponse<TEntity> : ApiResponse, ICommandResponse<TEntity>
 {
-    public CommandResponse(string? code = null, string? message = null, TEntity? data = default) : base(code, message)
+    public CommandResponse(TEntity? data = default)
     {
         Data = data;
     }

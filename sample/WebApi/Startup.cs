@@ -20,15 +20,25 @@ public class Startup
                 Configuration.Bind("SparkPlug:Api:AzureAd", bearerOptions);
                 // bearerOptions.TokenValidationParameters.NameClaimType = "name";
             }, (identityOptions) => Configuration.Bind("SparkPlug:Api:AzureAd", identityOptions));
-            // builder.Services.AddAuthentication().AddMicrosoftAccount((options) =>
-            //     {
-            //         options.ClientId = "";
-            //         options.ClientSecret = "";
-            //     });
+        // builder.Services.AddAuthentication().AddMicrosoftAccount((options) =>
+        //     {
+        //         options.ClientId = "";
+        //         options.ClientSecret = "";
+        //     });
+        services.AddCors(options =>
+       {
+           options.AddDefaultPolicy(builder =>
+           {
+               builder.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+           });
+       });
     }
 
     public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)
     {
+        app.UseCors();
         app.UseSparkPlugApi(serviceProvider);
         app.UseSparkPlugMongoDb(serviceProvider);
     }

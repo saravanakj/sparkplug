@@ -13,7 +13,6 @@ public interface IErrorResponse : IApiResponse
 
 public interface IQueryResponse<TEntity> : IApiResponse
 {
-    int? Total { get; set; }
     IPageContext? Page { get; set; }
     TEntity[]? Data { get; set; }
 }
