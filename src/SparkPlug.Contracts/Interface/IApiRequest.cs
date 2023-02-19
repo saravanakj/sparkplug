@@ -2,7 +2,7 @@ namespace SparkPlug.Contracts;
 
 public interface IApiRequest
 {
-    public string[]? Depends { get; set; }
+    public string[]? Deps { get; set; }
 }
 
 public interface IQueryRequest : IApiRequest
