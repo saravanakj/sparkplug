@@ -10,20 +10,25 @@ public class TenantResolver : ITenantResolver
 
     public async Task<ITenant> ResolveAsync(string? id)
     {
+        return string.IsNullOrWhiteSpace(id) ? GetDefaultTenant() : await GetTenant(id);
+    }
+
+    public async Task<Tenant> GetTenant(string id)
+    {
+        var dict = new Dictionary<string, string?>();
+        var repo = _serviceProvider.GetRequiredService<Repository<string, TenantDetails>>();
+        var tenantDetails = await repo.GetAsync(id);
+        tenantDetails.Options.ForEach(x => dict[x.Key] = x.Value);
+        return new Tenant() { Id = tenantDetails.Id, Name = tenantDetails.Name, Options = dict };
+    }
+
+    public Tenant GetDefaultTenant()
+    {
         var options = _serviceProvider.GetRequiredService<IOptions<MongoDbOptions>>().Value;
         var dict = new Dictionary<string, string?>()
         {
             { $"{nameof(TenantConfig)}:{nameof(options.ConnectionString)}", options.ConnectionString }
         };
-        var result = new Tenant() { Options = dict };
-        if (!string.IsNullOrWhiteSpace(id))
-        {
-            if (!ObjectId.TryParse(id, out ObjectId oid)) { throw new ArgumentException("${id} is not valid Tenant Id"); }
-            var repo = _serviceProvider.GetRequiredService<Repository<ObjectId, TenantDetails>>();
-            var tenantDetails = await repo.GetAsync(oid);
-            tenantDetails.Options.ForEach(x => dict[x.Key] = x.Value);
-            result = new Tenant() { Id = tenantDetails.Id.ToString(), Name = tenantDetails.Name, Options = dict };
-        }
-        return result;
+        return new Tenant() { Options = dict };
     }
 }

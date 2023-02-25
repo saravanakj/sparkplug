@@ -1,14 +1,16 @@
 namespace SparkPlug.Persistence.MongoDb.Models;
 
 [BsonIgnoreExtraElements]
-public abstract class BaseEntity<TId> : IBaseEntity<TId> where TId : new()
+[BsonDiscriminator(RootClass = true)]
+public abstract class BaseEntity<TId> : IBaseEntity<TId>
 {
+#pragma warning disable CS8618
     [BsonElement("_id")]
     [BsonId]
     [BsonIgnoreIfDefault]
-    [BsonRepresentation(BsonType.String)]
-    public virtual TId Id { get; set; } = new();
-
+    [BsonRepresentation(BsonType.ObjectId)]
+    public virtual TId Id { get; set; }
+#pragma warning disable CS8618
     public virtual TId GetId()
     {
         return Id;

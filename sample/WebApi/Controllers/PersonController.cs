@@ -1,7 +1,7 @@
 namespace SparkPlug.Sample.WebApi.Controllers;
 
 [ApiController, Route("person"), ApiExplorerSettings(GroupName = "v1")]
-public class PersonController : BaseController<ObjectId, Person>
+public class PersonController : BaseController<string, Person>
 {
     public PersonController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 

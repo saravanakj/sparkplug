@@ -2,7 +2,7 @@ namespace SparkPlug.Sample.WebApi.Models;
 
 [Collection("Tenants")]
 [Api("tenants")]
-public class TenantDetails : BaseEntity<ObjectId>
+public class TenantDetails : BaseEntity<string>
 {
     public string? Name { get; set; }
     public List<Options> Options { get; set; } = new List<Options>();

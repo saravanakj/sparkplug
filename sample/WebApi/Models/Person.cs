@@ -2,7 +2,7 @@ namespace SparkPlug.Sample.WebApi.Models;
 
 [Collection("Persons")]
 [Api("person", typeof(ApiController<,>))]
-public class Person : BaseEntity<ObjectId>
+public class Person : BaseEntity<string>
 {
     public string? PersonName { get; set; }
     public string? Department { get; set; }
