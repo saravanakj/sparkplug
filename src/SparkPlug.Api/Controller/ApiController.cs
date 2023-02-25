@@ -1,7 +1,7 @@
 namespace SparkPlug.Api.Controllers;
 
 [ApiExplorerSettings(GroupName = "Template")]
-public sealed class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, TEntity, TId> where TRepo : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
+public sealed class ApiController<TId, TEntity> : BaseController<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
     public ApiController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
@@ -44,7 +44,7 @@ public sealed class ApiController<TRepo, TEntity, TId> : BaseController<TRepo, T
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(TId id)
     {
-        var entity =  await _repository.DeleteAsync(id);
+        var entity = await _repository.DeleteAsync(id);
         return Ok(entity);
     }
 }

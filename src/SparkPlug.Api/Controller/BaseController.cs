@@ -1,18 +1,16 @@
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-
 namespace SparkPlug.Api.Controllers;
 
-public abstract class BaseController<TRepo, TEntity, TId> : ControllerBase where TRepo : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>
+public abstract class BaseController<TId, TEntity> : ControllerBase where TEntity : class, IBaseEntity<TId>, new()
 {
-    protected readonly TRepo _repository;
-    protected readonly ILogger<BaseController<TRepo, TEntity, TId>> _logger;
+    protected readonly Repository<TId, TEntity> _repository;
+    protected readonly ILogger<BaseController<TId, TEntity>> _logger;
     protected readonly IServiceProvider _serviceProvider;
 
     protected BaseController(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _repository = serviceProvider.GetRequiredService<TRepo>();
-        _logger = serviceProvider.GetRequiredService<ILogger<BaseController<TRepo, TEntity, TId>>>();
+        _repository = serviceProvider.GetRequiredService<Repository<TId, TEntity>>();
+        _logger = serviceProvider.GetRequiredService<ILogger<BaseController<TId, TEntity>>>();
     }
     [NonAction]
     public OkObjectResult Ok([ActionResultObjectValue] IEnumerable<TEntity> data, [ActionResultObjectValue] IPageContext? pagecontext)

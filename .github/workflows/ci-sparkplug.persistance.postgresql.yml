@@ -3,7 +3,7 @@ name: Dotnet 7 Build
 on:
   push:
     paths:
-      - src/SparkPlug.Persistence.PostgreSQL
+      - src/SparkPlug.Persistence.EntityFramework
     # paths-ignore:
     #   - '.vscode/**'
     #   - 'sample/**'
@@ -14,15 +14,15 @@ on:
     branches: [ "feature/*" ]
   pull_request:
     paths:
-      - src/SparkPlug.Persistence.PostgreSQL
+      - src/SparkPlug.Persistence.EntityFramework
     branches: [ "main" ]
 
 env:
-  PROJECT: src/SparkPlug.Persistence.PostgreSQL/SparkPlug.Persistence.PostgreSQL.csproj
+  PROJECT: src/SparkPlug.Persistence.EntityFramework/SparkPlug.Persistence.EntityFramework.csproj
 
 jobs:
   build:
-    name: Build SparkPlug.Persistence.PostgreSQL App
+    name: Build SparkPlug.Persistence.EntityFramework App
     runs-on: ${{ matrix.os }}
     strategy:
         matrix:

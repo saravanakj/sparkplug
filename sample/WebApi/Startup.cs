@@ -1,3 +1,5 @@
+using SparkPlug.Api.Configuration;
+
 namespace SparkPlug.Sample.Api;
 
 public class Startup
@@ -10,9 +12,16 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSparkPlugApi(Configuration);
-        // builder.Services.AddOptions<SparkPlugApiOptions>().Configure((options) => { });
-        services.AddSparkPlugMongoDb(Configuration);
+        services.AddWebApi(Configuration);
+        // services.AddOptions<ApiOptions>().Configure((options) => { });
+        services.AddMongoDb(Configuration);
+        // services.AddOptions<SqlOptions>().Configure((options) => options.Connection = new NpgsqlConnection(options.ConnectionString));
+        // services.AddSqlDb(Configuration, (sqlOptions) =>
+        // {
+        //     sqlOptions.Connection = new NpgsqlConnection(sqlOptions.ConnectionString);
+        //     return sqlOptions;
+        // });
+        // services.AddSingleton<IModelBuilderProvider, ModelBuilderProvider>();
         services.AddScoped<ITenantResolver, TenantResolver>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi((bearerOptions) =>
@@ -39,7 +48,7 @@ public class Startup
     public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)
     {
         app.UseCors();
-        app.UseSparkPlugApi(serviceProvider);
-        app.UseSparkPlugMongoDb(serviceProvider);
+        app.UseWebApi(serviceProvider);
+        app.UseMongoDb(serviceProvider);
     }
 }

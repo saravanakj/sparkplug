@@ -6,7 +6,8 @@ public class GenericControllerRouteConvention : IControllerModelConvention
     {
         if (controller.ControllerType.IsGenericType)
         {
-            var model = controller.ControllerType.GenericTypeArguments[1];
+            var genericTypes = controller.ControllerType.GetGenericArguments();
+            var model = genericTypes[1];
             var attribute = model.GetCustomAttribute<ApiAttribute>();
             var controllerName = string.IsNullOrWhiteSpace(attribute?.Route) ? model.Name : attribute.Route;
             controller.Selectors.Add(new SelectorModel

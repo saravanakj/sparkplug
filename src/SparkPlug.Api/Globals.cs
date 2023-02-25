@@ -1,5 +1,6 @@
 global using System;
 global using System.Linq;
+global using System.Text;
 global using System.Reflection;
 global using System.Net;
 global using System.Transactions;
@@ -25,6 +26,7 @@ global using Microsoft.AspNetCore.Mvc.Filters;
 global using Microsoft.AspNetCore.JsonPatch;
 global using Microsoft.AspNetCore.Mvc.Infrastructure;
 global using Swashbuckle.AspNetCore.SwaggerGen;
+global using Microsoft.Extensions.Diagnostics.HealthChecks;
 global using Newtonsoft.Json;
 
 global using SparkPlug.Contracts;

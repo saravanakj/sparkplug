@@ -1,10 +1,10 @@
 namespace SparkPlug.Persistence.MongoDb.Context;
 
-public class MongoDbContext : IMongoDbContext
+public class MongoDbClient
 {
-    private string DatabaseName { get; set;} = string.Empty;
+    private string DatabaseName { get; set; } = string.Empty;
     public IMongoDatabase Database { get; }
-    public MongoDbContext(ITenantOptions<TenantConfig> options)
+    public MongoDbClient(ITenantOptions<TenantConfig> options)
     {
         var _mongoClient = GetClient(options.Value.ConnectionString);
         Database = _mongoClient.GetDatabase(DatabaseName);

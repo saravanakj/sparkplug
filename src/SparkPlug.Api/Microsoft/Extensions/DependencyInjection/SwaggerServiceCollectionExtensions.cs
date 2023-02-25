@@ -2,30 +2,25 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SwaggerServiceCollectionExtensions
 {
-    private static readonly string?[] _apiVersions;
-
-    private static Assembly[]? _assemblies;
-
-    public static Assembly[] CachedAssemblies { get => _assemblies ??= AppDomain.CurrentDomain.GetAssemblies(); }
-
-    static SwaggerServiceCollectionExtensions()
-    {
-        _apiVersions = CachedAssemblies
+    private static readonly string?[] _apiVersions = CachedAssemblies
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => type.IsDefined(typeof(ApiExplorerSettingsAttribute), false))
             .SelectMany(type => type.GetCustomAttributes<ApiExplorerSettingsAttribute>())
             .Select(a => a.GroupName)
             .Distinct()
             .ToArray();
-    }
 
-    public static IServiceCollection AddSwagger(this IServiceCollection services, SparkPlugApiOptions options)
+    private static Assembly[]? _assemblies;
+
+    public static Assembly[] CachedAssemblies { get => _assemblies ??= AppDomain.CurrentDomain.GetAssemblies(); }
+
+    public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(swaggerOptions =>
             {
-                Array.ForEach(_apiVersions, version => swaggerOptions.SwaggerDoc(version, new OpenApiInfo { Version = version, Title = $"{options.ApplicationName}Api" }));
+                Array.ForEach(_apiVersions, version => swaggerOptions.SwaggerDoc(version, new OpenApiInfo { Version = version, Title = "Api" }));
                 swaggerOptions.DocumentFilter<SetBasePathFilter>();
                 swaggerOptions.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                 swaggerOptions.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -60,8 +55,8 @@ public static class SwaggerServiceCollectionExtensions
 
 public class SetBasePathFilter : IDocumentFilter
 {
-    private readonly SparkPlugApiOptions _options;
-    public SetBasePathFilter(IOptions<SparkPlugApiOptions> options)
+    private readonly WebApiOptions _options;
+    public SetBasePathFilter(IOptions<WebApiOptions> options)
     {
         _options = options.Value;
     }

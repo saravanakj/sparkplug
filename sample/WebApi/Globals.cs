@@ -11,6 +11,7 @@ global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.Identity.Web;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Options;
+global using MongoDB.Bson;
 
 global using SparkPlug.Api.Controllers;
 global using SparkPlug.Contracts;

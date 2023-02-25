@@ -16,6 +16,6 @@ public class TenantOptionsManager<TOptions> : ITenantOptions<TOptions> where TOp
         configuration ??= new ConfigurationBuilder()
             .AddInMemoryCollection(_tenant.Options)
             .Build();
-        return configuration.GetSection(typeof(TOptions).Name).Get<TOptions>() ?? new TOptions();
+        return configuration.GetSection(typeof(TOptions).Name).Get<TOptions>() ?? new();
     }
 }

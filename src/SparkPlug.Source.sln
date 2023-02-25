@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.Abstr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.MongoDb", "SparkPlug.Persistence.MongoDb\SparkPlug.Persistence.MongoDb.csproj", "{C578D0D2-52CC-4182-B219-E73181C35539}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.PostgreSQL", "SparkPlug.Persistence.PostgreSQL\SparkPlug.Persistence.PostgreSQL.csproj", "{11C73BEE-3E9E-4A82-B9F3-485F1C1DE915}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SparkPlug.Persistence.EntityFramework", "SparkPlug.Persistence.EntityFramework\SparkPlug.Persistence.EntityFramework.csproj", "{11C73BEE-3E9E-4A82-B9F3-485F1C1DE915}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,7 +9,7 @@ public class TenantResolverMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, ITenantResolver tenantResolver, IOptions<SparkPlugApiOptions> options)
+    public async Task InvokeAsync(HttpContext context, ITenantResolver tenantResolver, IOptions<WebApiOptions> options)
     {
         // var tenantId = context.Request.Headers["TenantId"]; // Read form header
         // var tenantId = context.Request.Query["TenantId"]; // Read from QueryString
@@ -26,7 +26,7 @@ public class TenantResolverMiddleware
         //     context.Items["TenantId"] = tenantId;
         // }
 
-        var tenantId = context.GetRouteValue(SparkPlugApiConstants.Tenant)?.ToString();
+        var tenantId = context.GetRouteValue(WebApiConstants.Tenant)?.ToString();
         context.Items["Tenant"] = await tenantResolver.ResolveAsync(tenantId);
         var segments = context.Request.Path.Value?.Split('/');
         if (options.Value.IsMultiTenant && segments?.Length > 0)

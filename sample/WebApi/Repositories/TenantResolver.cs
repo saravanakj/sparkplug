@@ -10,7 +10,7 @@ public class TenantResolver : ITenantResolver
 
     public async Task<ITenant> ResolveAsync(string? id)
     {
-        var options = _serviceProvider.GetRequiredService<IOptions<SparkPlugMongoDbOptions>>().Value;
+        var options = _serviceProvider.GetRequiredService<IOptions<MongoDbOptions>>().Value;
         var dict = new Dictionary<string, string?>()
         {
             { $"{nameof(TenantConfig)}:{nameof(options.ConnectionString)}", options.ConnectionString }
@@ -18,10 +18,11 @@ public class TenantResolver : ITenantResolver
         var result = new Tenant() { Options = dict };
         if (!string.IsNullOrWhiteSpace(id))
         {
-            var repo = _serviceProvider.GetRequiredService<Repository<string, TenantDetails>>();
-            var tenantDetails = await repo.GetAsync(id);
+            if (!ObjectId.TryParse(id, out ObjectId oid)) { throw new ArgumentException("${id} is not valid Tenant Id"); }
+            var repo = _serviceProvider.GetRequiredService<Repository<ObjectId, TenantDetails>>();
+            var tenantDetails = await repo.GetAsync(oid);
             tenantDetails.Options.ForEach(x => dict[x.Key] = x.Value);
-            result = new Tenant() { Id = tenantDetails.Id, Name = tenantDetails.Name, Options = dict };
+            result = new Tenant() { Id = tenantDetails.Id.ToString(), Name = tenantDetails.Name, Options = dict };
         }
         return result;
     }
