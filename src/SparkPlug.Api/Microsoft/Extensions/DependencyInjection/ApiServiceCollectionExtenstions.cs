@@ -15,7 +15,7 @@ public static class ApiServiceCollectionExtenstions
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
                 .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,>))));
         // .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-        services.AddControllers(options => options.Filters.Add(new GlobalExceptionFilterAttribute()))
+        services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>())
                 .AddNewtonsoftJson();
         if (setupAction != null) services.Configure(setupAction);
         services.AddSwagger();

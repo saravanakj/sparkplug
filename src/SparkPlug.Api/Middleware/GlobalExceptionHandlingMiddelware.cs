@@ -25,11 +25,10 @@ public class GlobalExceptionHandlingMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        var error = new ErrorResponse("Internal Server Error", exception);
-        _logger.LogError("Global Exception - ", error.Message);
+        _logger.LogError(exception.Message, exception);
         var response = context.Response;
         response.StatusCode = StatusCodes.Status500InternalServerError;
         response.ContentType = WebApiConstants.ContentType;
-        await context.Response.WriteAsJsonAsync(new JsonResult(error));
+        await context.Response.WriteAsJsonAsync(new JsonResult(new ErrorResponse("Internal Server Error", exception)));
     }
 }

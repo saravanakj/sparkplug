@@ -22,7 +22,7 @@ public class Startup
             return sqlOptions;
         });
         services.AddScoped<IDbContextOptionsProvider, DbContextOptionsProvider>();
-        services.AddSingleton<IModelBuilderProvider, ModelBuilderProvider>();
+        services.AddSingleton<IModelConfigurationProvider, ModelConfigurationProvider>();
         services.AddScoped<ITenantResolver, TenantResolver>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi((bearerOptions) =>

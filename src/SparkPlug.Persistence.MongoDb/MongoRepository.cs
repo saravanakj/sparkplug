@@ -8,15 +8,7 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
     private IMongoCollection<TEntity>? _collection;
     public virtual IMongoCollection<TEntity> Collection
     {
-        get
-        {
-            if (_collection == null)
-            {
-                var collectionName = GetCollectionName(typeof(TEntity));
-                _collection = _context.GetCollection<TEntity>(collectionName);
-            }
-            return _collection;
-        }
+        get => _collection ??= _context.GetCollection<TEntity>(GetCollectionName(typeof(TEntity)));
     }
     private static string GetCollectionName(Type type)
     {

@@ -2,7 +2,7 @@ namespace SparkPlug.Persistence.EntityFramework;
 
 public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
-    internal readonly SqlDbClient _sqlDbClient;
+    public SqlDbContext DbContext { get; }
     internal readonly ILogger<SqlRepository<TId, TEntity>> _logger;
     internal readonly IRequestContext _requestContext;
     private DbSet<TEntity>? _dbSet;
@@ -21,11 +21,9 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     {
         return DbContext.Set<Entity>();
     }
-    public SqlDbContext DbContext { get => _sqlDbClient.Context; }
-
     public SqlRepository(IServiceProvider serviceProvider)
     {
-        _sqlDbClient = serviceProvider.GetRequiredService<SqlDbClient>();
+        DbContext = serviceProvider.GetRequiredService<SqlDbContext>();
         _logger = serviceProvider.GetRequiredService<ILogger<SqlRepository<TId, TEntity>>>();
         _requestContext = serviceProvider.GetRequiredService<IRequestContext>();
     }
@@ -77,15 +75,14 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     }
     public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
     {
-        var entitiesTask = ListAsync(request);
-        var countTask = GetCountAsync(request);
-        await Task.WhenAll(entitiesTask, countTask).ConfigureAwait(false);
-        return (entitiesTask.Result, countTask.Result);
+        var entities = await ListAsync(request).ConfigureAwait(false);
+        var count = await GetCountAsync(request).ConfigureAwait(false);
+        return (entities, count);
     }
     public async Task<TEntity> GetAsync(TId id)
     {
         var tid = id ?? throw new QueryEntityException("Id is null");
-        var result = await DbSet.FindAsync(tid);
+        var result = await DbSet.FindAsync(tid).ConfigureAwait(false);
         return result ?? throw new QueryEntityException("Id is not found");
     }
     public async Task<TEntity[]> GetManyAsync(TId[] ids)
@@ -118,6 +115,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     {
         entity = entity.Auditable<TId, TEntity>(_requestContext.UserId, DateTime.UtcNow);
         DbSet.Attach(entity);
+        if (entity is IConcurrencyEntity obj) { obj.Revision++; }
         DbContext.Entry(entity).State = EntityState.Modified;
         await DbContext.SaveChangesAsync();
         return entity;

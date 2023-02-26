@@ -2,14 +2,14 @@ namespace SparkPlug.Persistence.EntityFramework.Context;
 
 public class SqlDbContext : DbContext
 {
-    private readonly IModelBuilderProvider _modelBuilderProvider;
+    private readonly IModelConfigurationProvider _modelConfigurationProvider;
 
-    public SqlDbContext(IServiceProvider serviceProvider, DbContextOptions options) : base(options)
+    public SqlDbContext(IServiceProvider serviceProvider, SqlDbContextOptions sqlOptions) : base(sqlOptions.Value)
     {
-        _modelBuilderProvider = serviceProvider.GetRequiredService<IModelBuilderProvider>();
+        _modelConfigurationProvider = serviceProvider.GetRequiredService<IModelConfigurationProvider>();
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        _modelBuilderProvider.Build(modelBuilder);
+        _modelConfigurationProvider.Configure(modelBuilder);
     }
 }

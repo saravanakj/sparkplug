@@ -1,5 +1,3 @@
-using SparkPlug.Api.Configuration;
-
 namespace SparkPlug.Sample.Api;
 
 public class Startup
@@ -21,7 +19,6 @@ public class Startup
         //     sqlOptions.Connection = new NpgsqlConnection(sqlOptions.ConnectionString);
         //     return sqlOptions;
         // });
-        // services.AddSingleton<IModelBuilderProvider, ModelBuilderProvider>();
         services.AddScoped<ITenantResolver, TenantResolver>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi((bearerOptions) =>

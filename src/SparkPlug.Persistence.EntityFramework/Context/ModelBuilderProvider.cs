@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.EntityFramework.Context;
 
-public interface IModelBuilderProvider
+public interface IModelConfigurationProvider
 {
-    public void Build(ModelBuilder modelBuilder);
+    public void Configure(ModelBuilder modelBuilder);
 }

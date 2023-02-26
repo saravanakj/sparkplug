@@ -7,7 +7,8 @@ public static class SqlServiceCollectionExtenstions
         var options = configuration.GetSection(SqlDbOptions.ConfigPath);
         services.Configure<SqlDbOptions>(options);
         var sqlOptions = options.Get<SqlDbOptions>() ?? throw new Exception("Sql Options not configured");
-        services.AddScoped<SqlDbClient>();
+        services.AddScoped<SqlDbContextOptions>();
+        services.AddDbContext<SqlDbContext>(ServiceLifetime.Scoped);
         services.AddScoped(typeof(SqlRepository<,>));
         services.AddScoped<IRepositoryProvider, SqlRepositoryProvider>();
         services.AddMvc()

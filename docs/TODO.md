@@ -31,3 +31,10 @@
 4. All Rest API make it workable with MongoDb sample Application. - Done
 6. Dynamically add api version in Swagger docs. - Done
 7. Transactions handling - Done
+
+
+# Ask 
+
+1. Inside AddService methods, how to access IOptions<SqlDbOptions> instance?
+2. Geting error if we call 2 times an api (same context object used.)
+3. 
