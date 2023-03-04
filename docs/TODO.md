@@ -2,7 +2,6 @@
 
 1. Serializer Implmentation for ApiRequests to send as payload or querystring in SparkPlug.Contract library. 
     a. .ToJson()
-    b. .ToBase64()
 
 2. RESTSharp integration to get or post data to REST API Url in SparkPlug.Contract library. 
     a. .Get("/user/10")
@@ -19,6 +18,7 @@
 11. Functional Module list
     a. RBAC based Authorization, UI Screens mappings for role
     b. Multi-Tenancy Management
+    c. Workflow engine (Camunda)
 12. OpenApi with API Scope declaration and C# attribute to define scope of the API.
 
 13. If table contains Composite Key, Need to handle it. (CompositeApi attribute and [Key(1)], [Key(2)] attribute implement for composite key table.)
@@ -26,7 +26,8 @@
 15. Enable Architecture / Audit columns in APIs.  - Done
 16. Soft Delete (status Column) added by IDeletableEntity interface.
 17. Database Migration using EF migration support
-18. 
+18. INCLUDE Foreign table in response for EntityFramework.
+19. 
 
 # Done
 

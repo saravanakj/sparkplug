@@ -1,4 +1,3 @@
-using System.ComponentModel;
 namespace SparkPlug.Persistence.EntityFramework;
 
 public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
@@ -39,7 +38,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     }
     public IQueryable<TEntity> GetQuery(IQueryRequest? request)
     {
-        var query = GetDbSet().AsQueryable();
+        var query = GetDbSet().AsQueryable().AsNoTracking();
         var TEntityType = typeof(TEntity);
         var ObjectType = typeof(object);
         if (request?.Select != null && request.Select.Any())
@@ -78,16 +77,15 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         var entity = request.Data ?? throw new CreateEntityException("Entity is null");
-        entity = entity.Auditable(requestContext.UserId, DateTime.UtcNow, true);
         var entityEntry = await DbSet.AddAsync(entity, cancellationToken);
-        await DbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(requestContext.UserId, cancellationToken);
         return entityEntry.Entity;
     }
     public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests, CancellationToken cancellationToken)
     {
         var entities = requests.Data ?? throw new CreateEntityException("Entities are null");
-        await DbSet.AddRangeAsync(entities.Select(x => x.Auditable(requestContext.UserId, DateTime.UtcNow, true)), cancellationToken);
-        await DbContext.SaveChangesAsync(cancellationToken);
+        await DbSet.AddRangeAsync(entities, cancellationToken);
+        await DbContext.SaveChangesAsync(requestContext.UserId, cancellationToken);
         return entities;
     }
     public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
@@ -98,18 +96,17 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     }
     private async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        entity = entity.Auditable(requestContext.UserId, DateTime.UtcNow);
         DbSet.Attach(entity);
         if (entity is IConcurrencyEntity obj) { obj.Revision++; }
         DbContext.Entry(entity).State = EntityState.Modified;
-        await DbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(requestContext.UserId, cancellationToken);
         return entity;
     }
     public async Task<TEntity> DeleteAsync(TId id, CancellationToken cancellationToken)
     {
         var tid = id ?? throw new DeleteEntityException("Id is null");
         TEntity entityToDelete = (await DbSet.FindAsync(new object[] { tid }, cancellationToken)) ?? throw new DeleteEntityException("Id is invalid");
-        entityToDelete = entityToDelete.Deletable<TId, TEntity>();
+        if (entityToDelete is IDeletableEntity obj) { obj.Status = Status.Deleted; }
         return await UpdateAsync(entityToDelete, cancellationToken);
     }
     public async Task<long> GetCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
@@ -133,7 +130,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
         var sourceEntity = await GetAsync(tid, cancellationToken);
         sourceEntity = sourceEntity ?? throw new UpdateEntityException("Id is invalid");
         DbContext.Entry(sourceEntity).CurrentValues.SetValues(entity);
-        var modifyedCount = await DbContext.SaveChangesAsync(cancellationToken);
+        var modifyedCount = await DbContext.SaveChangesAsync(requestContext.UserId, cancellationToken);
         if (modifyedCount == 0) throw new UpdateEntityException("No records are replaced");
         return sourceEntity;
     }

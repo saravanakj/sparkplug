@@ -15,13 +15,4 @@ public static class RepositoryExtentions
         }
         return entity;
     }
-
-    public static TEntity Deletable<TId, TEntity>(this TEntity entity) where TEntity : class, IBaseEntity<TId>
-    {
-        if (entity is IDeletableEntity obj)
-        {
-            obj.Status = Status.Live;
-        }
-        return entity;
-    }
 }
