@@ -22,9 +22,11 @@
 12. OpenApi with API Scope declaration and C# attribute to define scope of the API.
 
 13. If table contains Composite Key, Need to handle it. (CompositeApi attribute and [Key(1)], [Key(2)] attribute implement for composite key table.)
-14. Enable Table Auditing in API (Rev column need to add)
-15. Enable Architecture columns in APIs.  - Done
+14. Enable Table Concurrency in API (Rev column need to add)
+15. Enable Architecture / Audit columns in APIs.  - Done
 16. Soft Delete (status Column) added by IDeletableEntity interface.
+17. Database Migration using EF migration support
+18. 
 
 # Done
 

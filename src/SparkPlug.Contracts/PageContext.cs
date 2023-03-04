@@ -15,12 +15,12 @@ public class PageContext : IPageContext
 
 public static partial class Extensions
 {
-    public static IPageContext NextPage(this IPageContext pc)
+    public static PageContext NextPage(this PageContext pc)
     {
         pc.PageNo++;
         return pc;
     }
-    public static IPageContext SetTotal(this IPageContext pc, long total)
+    public static PageContext SetTotal(this PageContext pc, long total)
     {
         pc ??= new PageContext();
         pc.Total = total;

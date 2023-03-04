@@ -1,6 +1,5 @@
-namespace SparkPlug.Sample.WebApi.Models;
+namespace SparkPlug.Persistence.EntityFramework.Models;
 
-[Api("tenants")]
 public class TenantDetails : BaseEntity<Guid>, IConcurrencyEntity
 {
     public string? Name { get; set; }

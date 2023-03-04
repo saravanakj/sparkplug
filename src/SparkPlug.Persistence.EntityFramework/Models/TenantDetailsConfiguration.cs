@@ -1,4 +1,4 @@
-namespace SparkPlug.Sample.WebApi.Models;
+namespace SparkPlug.Persistence.EntityFramework.Models;
 
 public class TenantDetailsConfiguration : IEntityTypeConfiguration<TenantDetails>
 {

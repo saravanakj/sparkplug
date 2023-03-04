@@ -12,11 +12,18 @@ public static class ApiServiceCollectionExtenstions
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         services.AddScoped(typeof(ITenantOptions<>), typeof(TenantOptionsManager<>));
         services.AddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.Items["Tenant"] as ITenant ?? Tenant.Default);
+
         services.AddMvc(MvcOptions => MvcOptions.Conventions.Add(new GenericControllerRouteConvention()))
-                .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,>))));
+                .ConfigureApplicationPartManager(m => m.FeatureProviders.Add(new GenericTypeControllerFeatureProvider(typeof(ApiController<,>))))
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                });
         // .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>())
-                .AddNewtonsoftJson();
+                .AddNewtonsoftJson(options => options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
+
         if (setupAction != null) services.Configure(setupAction);
         services.AddSwagger();
         return services;
@@ -24,9 +31,9 @@ public static class ApiServiceCollectionExtenstions
 
     public static void UseWebApi(this IApplicationBuilder app, IServiceProvider serviceProvider)
     {
-        var config = serviceProvider.GetRequiredService<IOptions<WebApiOptions>>();
+        var options = serviceProvider.GetRequiredService<IOptions<WebApiOptions>>();
         var env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-        app.UsePathBase(config.Value.PathBase);
+        app.UsePathBase(options.Value.PathBase);
         if (env.IsDevelopment()) { app.UseSwagger(); }
         app.UseGlobalExceptionHandling();
         app.UseTransactionMiddleware();

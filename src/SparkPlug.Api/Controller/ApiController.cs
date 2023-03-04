@@ -6,11 +6,9 @@ public sealed class ApiController<TId, TEntity> : BaseController<TId, TEntity> w
     public ApiController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     [HttpGet]
-    public async Task<IActionResult> List(QueryRequest request)
+    public async Task<IActionResult> List([FromQuery] int? pageNo, [FromQuery] int? pageSize)
     {
-        var tuple = await _repository.ListWithCountAsync(request);
-        var pc = request.Page ?? new PageContext();
-        return Ok(tuple.Item1, pc.SetTotal(tuple.Item2));
+        return await Search(new QueryRequest(new PageContext(pageNo ?? 1, pageSize ?? 25)));
     }
 
     [HttpPost]
@@ -18,6 +16,14 @@ public sealed class ApiController<TId, TEntity> : BaseController<TId, TEntity> w
     {
         var entity = await _repository.CreateAsync(rec);
         return Ok(entity);
+    }
+
+    [HttpPost("search")]
+    public async Task<IActionResult> Search([FromBody] QueryRequest request)
+    {
+        var tuple = await _repository.ListWithCountAsync(request);
+        var pc = request?.Page ?? new PageContext();
+        return Ok(tuple.Item1, pc.SetTotal(tuple.Item2));
     }
 
     [HttpGet("{id}")]

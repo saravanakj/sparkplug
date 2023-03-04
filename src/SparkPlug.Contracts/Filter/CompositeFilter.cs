@@ -6,7 +6,7 @@ public enum CompositeOperator
     Or
 }
 
-public class CompositeFilter : ICompositeFilter
+public class CompositeFilter : Filter, ICompositeFilter
 {
     public CompositeFilter(CompositeOperator op = CompositeOperator.And, params IFilter[]? filters)
     {

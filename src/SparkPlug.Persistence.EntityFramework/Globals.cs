@@ -1,5 +1,6 @@
 ﻿global using System;
 global using System.Linq;
+global using System.Linq.Expressions;
 global using System.Collections.Generic;
 global using System.Threading.Tasks;
 global using System.Data.Common;
@@ -12,7 +13,8 @@ global using Microsoft.Extensions.Diagnostics.HealthChecks;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.JsonPatch;
 global using Microsoft.EntityFrameworkCore;
-global using System.Text.Json.Serialization;
+global using Microsoft.Extensions.Options;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 global using SparkPlug.Contracts;
 global using SparkPlug.Persistence.Abstractions;
@@ -21,3 +23,4 @@ global using SparkPlug.Persistence.EntityFramework;
 global using SparkPlug.Persistence.EntityFramework.Context;
 global using SparkPlug.Persistence.EntityFramework.HealthCheck;
 global using SparkPlug.Persistence.EntityFramework.Configuration;
+global using SparkPlug.Persistence.EntityFramework.Models;

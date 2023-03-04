@@ -1,4 +1,4 @@
-namespace SparkPlug.Sample.WebApi.Repositories;
+namespace SparkPlug.Persistence.EntityFramework;
 
 public class TenantResolver : ITenantResolver
 {

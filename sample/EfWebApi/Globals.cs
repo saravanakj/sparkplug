@@ -12,7 +12,6 @@ global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.Identity.Web;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Configuration;
-global using Microsoft.Extensions.Options;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Npgsql;
 global using Newtonsoft.Json;
@@ -21,9 +20,9 @@ global using SparkPlug.Api.Controllers;
 global using SparkPlug.Contracts;
 
 global using SparkPlug.Persistence.Abstractions;
+global using SparkPlug.Persistence.EntityFramework;
 global using SparkPlug.Persistence.EntityFramework.Configuration;
 global using SparkPlug.Persistence.EntityFramework.Context;
 global using SparkPlug.Persistence.EntityFramework.Models;
 
 global using SparkPlug.Sample.WebApi.Models;
-global using SparkPlug.Sample.WebApi.Repositories;

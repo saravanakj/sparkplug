@@ -3,8 +3,8 @@ namespace SparkPlug.Persistence.EntityFramework;
 public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
 {
     public SqlDbContext DbContext { get; }
-    internal readonly ILogger<SqlRepository<TId, TEntity>> _logger;
-    internal readonly IRequestContext _requestContext;
+    internal readonly ILogger<SqlRepository<TId, TEntity>> logger;
+    internal readonly IRequestContext requestContext;
     private DbSet<TEntity>? _dbSet;
     public virtual DbSet<TEntity> DbSet
     {
@@ -24,60 +24,45 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public SqlRepository(IServiceProvider serviceProvider)
     {
         DbContext = serviceProvider.GetRequiredService<SqlDbContext>();
-        _logger = serviceProvider.GetRequiredService<ILogger<SqlRepository<TId, TEntity>>>();
-        _requestContext = serviceProvider.GetRequiredService<IRequestContext>();
-    }
-
-    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
-    {
-        var query = GetDbSet().AsQueryable();
-        return await query.ToListAsync();
-
-        // var query = DbContext.Set<TEntity>().AsQueryable();
-        // if (request.Where != null)
-        // {
-        //     query = query.Where(request.Where.ToExpression<TEntity>());
-        // }
-
-        // if (request.Group != null && request.Group.Length > 0)
-        // {
-        //     query = query.GroupBy(request.Group.Join(", "), "it")
-        //                  .Select("new (it.Key as Key, it as Items)");
-        // }
-
-        // if (request.Having != null)
-        // {
-        //     var groupByProperties = request.Group.Select(x => "Key." + x);
-        //     query = query.Where(request.Having.ToExpression<Grouping<string, TEntity>>())
-        //                  .Select("Items");
-        // }
-
-        // if (request.Sort != null && request.Sort.Length > 0)
-        // {
-        //     var orderBy = string.Join(", ", request.Sort.Select(x => x.Field + " " + x.Direction));
-        //     query = query.OrderBy(orderBy);
-        // }
-
-        // if (request.Page != null)
-        // {
-        //     var skip = request.Page.Skip;
-        //     var take = request.Page.PageSize;
-        //     query = query.Skip(skip).Take(take);
-        // }
-
-        // if (request.Select != null && request.Select.Length > 0)
-        // {
-        //     var select = string.Join(", ", request.Select);
-        //     query = query.Select($"new ({select})");
-        // }
-
-        // return await query.ToListAsync();
+        logger = serviceProvider.GetRequiredService<ILogger<SqlRepository<TId, TEntity>>>();
+        requestContext = serviceProvider.GetRequiredService<IRequestContext>();
     }
     public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
     {
-        var entities = await ListAsync(request).ConfigureAwait(false);
-        var count = await GetCountAsync(request).ConfigureAwait(false);
-        return (entities, count);
+        var query = GetQuery(request);
+        return (await query.ToListAsync(), await query.LongCountAsync());
+    }
+    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
+    {
+        return await GetQuery(request).ToListAsync();
+    }
+
+    public IQueryable<TEntity> GetQuery(IQueryRequest? request)
+    {
+        var query = GetDbSet().AsQueryable();
+        var TEntityType = typeof(TEntity);
+        var ObjectType = typeof(object);
+        if (request?.Select != null && request.Select.Any())
+        {
+            var properties = TEntityType.GetProperties().Where(prop => request.Select.Contains(prop.Name));
+            var parameter = Expression.Parameter(TEntityType, "entity");
+            var propertyBindings = properties.Select(property => Expression.Bind(property, Expression.MakeMemberAccess(parameter, property)));
+            var selector = Expression.Lambda<Func<TEntity, TEntity>>(Expression.MemberInit(Expression.New(TEntityType), propertyBindings), parameter);
+            query = query.Select(selector);
+        }
+        if (request?.Sort?.Length > 0)
+        {
+            var orderedQuery = query.OrderBy(_ => 0);
+            foreach (var order in request.Sort)
+            {
+                var parameterExp = Expression.Parameter(TEntityType, "entity");
+                var propertyExp = Expression.Property(parameterExp, order.Field);
+                var lambdaExp = Expression.Lambda<Func<TEntity, object>>(Expression.Convert(propertyExp, typeof(object)), parameterExp);
+                return order.Direction == Direction.Ascending ? orderedQuery.ThenBy(lambdaExp) : orderedQuery.ThenByDescending(lambdaExp);
+            }
+            query = orderedQuery;
+        }
+        return request?.Where == null ? query : query.Where(request.Where.GetFilterDefinition<TEntity>());
     }
     public async Task<TEntity> GetAsync(TId id)
     {
@@ -93,7 +78,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
     {
         var entity = request.Data ?? throw new CreateEntityException("Entity is null");
-        entity = entity.Auditable<TId, TEntity>(_requestContext.UserId, DateTime.UtcNow);
+        entity = entity.Auditable<TId, TEntity>(requestContext.UserId, DateTime.UtcNow);
         var entityEntry = await DbSet.AddAsync(entity);
         await DbContext.SaveChangesAsync();
         return entityEntry.Entity;
@@ -101,7 +86,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
     {
         var entities = requests.Data ?? throw new CreateEntityException("Entities are null");
-        await DbSet.AddRangeAsync(entities.Select(x => x.Auditable<TId, TEntity>(_requestContext.UserId, DateTime.UtcNow, true)));
+        await DbSet.AddRangeAsync(entities.Select(x => x.Auditable<TId, TEntity>(requestContext.UserId, DateTime.UtcNow, true)));
         await DbContext.SaveChangesAsync();
         return entities;
     }
@@ -113,7 +98,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     }
     private async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        entity = entity.Auditable<TId, TEntity>(_requestContext.UserId, DateTime.UtcNow);
+        entity = entity.Auditable<TId, TEntity>(requestContext.UserId, DateTime.UtcNow);
         DbSet.Attach(entity);
         if (entity is IConcurrencyEntity obj) { obj.Revision++; }
         DbContext.Entry(entity).State = EntityState.Modified;
@@ -154,89 +139,63 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     }
 }
 
-// public static class Extention
-// {
-// public static IQueryable GetPageQuery(this IQueryable query, PageContext pageContext)
-// {
+public static class Extention
+{
+    public static IEnumerable<Expression<Func<TEntity, bool>>> GetFilterDefinitions<TEntity>(this IFilter[] filters)
+    {
+        return filters.Select(x => x.GetFilterDefinition<TEntity>()).ToArray();
+    }
 
-// }
-// }
+    public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this IFilter filter)
+    {
+        return filter switch
+        {
+            ICompositeFilter compositeFilter => compositeFilter.GetFilterDefinition<TEntity>(),
+            IFieldFilter fieldFilter => fieldFilter.GetFilterDefinition<TEntity>(),
+            IUnaryFilter unaryFilter => unaryFilter.GetFilterDefinition<TEntity>(),
+            _ => throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported")
+        };
+    }
 
-// public static class FilterExtensions
-// {
-//     public static Expression<Func<TEntity, bool>> ToExpression<TEntity>(this IFilter filter)
-//     {
-//         if (filter is ICompositeFilter compositeFilter)
-//         {
-//             var expressions = compositeFilter.Filters?.Select(f => f.ToExpression<TEntity>());
-//             var compositeExpression = expressions?.Aggregate((x, y) =>
-//             {
-//                 switch (compositeFilter.Op)
-//                 {
-//                     case CompositeOperator.And:
-//                         return Expression.AndAlso(x, y);
-//                     case CompositeOperator.Or:
-//                         return Expression.OrElse(x, y);
-//                     default:
-//                         throw new NotSupportedException($"Composite operator {compositeFilter.Op} is not supported.");
-//                 }
-//             });
+    public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this ICompositeFilter compositeFilter)
+    {
+        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var expression = compositeFilter.Op switch
+        {
+            CompositeOperator.And => compositeFilter.Filters?.GetFilterDefinitions<TEntity>().Aggregate((a, b) => Expression.Lambda<Func<TEntity, bool>>(Expression.AndAlso(a, b), parameter)),
+            CompositeOperator.Or => compositeFilter.Filters?.GetFilterDefinitions<TEntity>().Aggregate((a, b) => Expression.Lambda<Func<TEntity, bool>>(Expression.AndAlso(a, b), parameter)),
+            _ => throw new QueryEntityException("Invalid composite filter operation")
+        };
+        Expression<Func<TEntity, bool>> p = (_) => true;
+        return expression ?? p;
+    }
 
-//             if (compositeExpression == null)
-//             {
-//                 throw new InvalidOperationException("Filters cannot be null or empty.");
-//             }
+    public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this IFieldFilter fieldFilter)
+    {
+        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var left = Expression.Property(parameter, fieldFilter.Field);
+        var right = Expression.Constant(fieldFilter.Value);
+        Expression body = fieldFilter.Op switch
+        {
+            FieldOperator.Equal => Expression.Equal(left, right),
+            FieldOperator.NotEqual => Expression.NotEqual(left, right),
+            FieldOperator.GreaterThan => Expression.GreaterThan(left, right),
+            FieldOperator.GreaterThanOrEqual => Expression.GreaterThanOrEqual(left, right),
+            FieldOperator.LessThan => Expression.LessThan(left, right),
+            FieldOperator.LessThanOrEqual => Expression.LessThanOrEqual(left, right),
+            FieldOperator.In => Expression.Call(Expression.Constant(fieldFilter.Value), "Contains", null, left),
+            FieldOperator.NotIn => Expression.Not(Expression.Call(Expression.Constant(fieldFilter.Value), "Contains", null, left)),
+            _ => throw new QueryEntityException("Invalid field filter operation")
+        };
+        return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+    }
 
-//             return Expression.Lambda<Func<TEntity, bool>>(compositeExpression);
-//         }
-//         else if (filter is IFieldFilter fieldFilter)
-//         {
-//             var parameter = Expression.Parameter(typeof(TEntity), "x");
-//             var member = Expression.PropertyOrField(parameter, fieldFilter.Field);
-//             var constant = Expression.Constant(fieldFilter.Value);
-
-//             switch (fieldFilter.Op)
-//             {
-//                 case FieldOperator.Equal:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.Equal(member, constant), parameter);
-//                 case FieldOperator.NotEqual:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.NotEqual(member, constant), parameter);
-//                 case FieldOperator.GreaterThan:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.GreaterThan(member, constant), parameter);
-//                 case FieldOperator.GreaterThanOrEqual:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.GreaterThanOrEqual(member, constant), parameter);
-//                 case FieldOperator.LessThan:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.LessThan(member, constant), parameter);
-//                 case FieldOperator.LessThanOrEqual:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.LessThanOrEqual(member, constant), parameter);
-//                 case FieldOperator.Contains:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(member, typeof(string).GetMethod("Contains", new[] { typeof(string) }), constant), parameter);
-//                 case FieldOperator.StartsWith:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(member, typeof(string).GetMethod("StartsWith", new[] { typeof(string) }), constant), parameter);
-//                 case FieldOperator.EndsWith:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(member, typeof(string).GetMethod("EndsWith", new[] { typeof(string) }), constant), parameter);
-//                 default:
-//                     throw new NotSupportedException($"Field operator {fieldFilter.Op} is not supported.");
-//             }
-//         }
-//         else if (filter is IUnaryFilter unaryFilter)
-//         {
-//             var parameter = Expression.Parameter(typeof(TEntity), "x");
-//             var member = Expression.PropertyOrField(parameter, unaryFilter.Field);
-
-//             switch (unaryFilter.Op)
-//             {
-//                 case UnaryOperator.IsNull:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.Equal(member, Expression.Constant(null)), parameter);
-//                 case UnaryOperator.IsNotNull:
-//                     return Expression.Lambda<Func<TEntity, bool>>(Expression.NotEqual(member, Expression.Constant(null)), parameter);
-//                 default:
-//                     throw new NotSupportedException($"Unary operator {unaryFilter.Op} is not supported.");
-//             }
-//         }
-//         else
-//         {
-//             throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported.");
-//         }
-//     }
-// }
+    public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this IUnaryFilter unaryFilter)
+    {
+        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var left = Expression.Property(parameter, unaryFilter.Field);
+        var right = Expression.Constant(unaryFilter.Op == UnaryOperator.IsNull ? null : DBNull.Value);
+        var body = unaryFilter.Op == UnaryOperator.IsNull ? Expression.Equal(left, right) : Expression.NotEqual(left, right);
+        return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+    }
+}

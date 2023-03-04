@@ -9,7 +9,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     }
     public override void OnException(ExceptionContext context)
     {
-        _logger.LogError(context.Exception.Message, context.Exception);
+        _logger.LogError(WebApiConstants.LogErrorMessageTemplate, context.Exception.Message, context.Exception);
         var response = context.HttpContext.Response;
         response.StatusCode = StatusCodes.Status500InternalServerError;
         response.ContentType = WebApiConstants.ContentType;

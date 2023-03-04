@@ -6,7 +6,7 @@ public enum UnaryOperator
     IsNotNull
 }
 
-public class UnaryFilter : IUnaryFilter
+public class UnaryFilter : Filter, IUnaryFilter
 {
     public UnaryFilter(String field, UnaryOperator op)
     {

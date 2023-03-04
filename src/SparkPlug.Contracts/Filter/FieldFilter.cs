@@ -12,7 +12,7 @@ public enum FieldOperator
     NotIn
 }
 
-public class FieldFilter : IFieldFilter
+public class FieldFilter : Filter, IFieldFilter
 {
     public FieldFilter(string field, FieldOperator op, object value)
     {

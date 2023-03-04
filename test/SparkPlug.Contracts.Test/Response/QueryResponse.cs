@@ -18,8 +18,8 @@ public class Test_QueryResponse
     {
         var qr = new QueryResponse<Int32>(new Int32[] { 100 }, new PageContext(1, 100));
         Assert.NotNull(qr);
-        Assert.Equal("USER-1000", qr.Code);
-        Assert.Equal("Test", qr.Message);
+        Assert.Null(qr.Code);
+        Assert.Null(qr.Message);
         Assert.NotNull(qr.Data);
         Assert.Equal(1, qr.Page?.PageNo);
         Assert.Equal(100, qr.Page?.PageSize);
@@ -38,8 +38,8 @@ public class Test_QueryResponse
         // .AddTotalRecord(1000);
 
         Assert.NotNull(qr);
-        Assert.Equal("USER-1000", qr.Code);
-        Assert.Equal("Test", qr.Message);
+        Assert.Null(qr.Code);
+        Assert.Null(qr.Message);
         Assert.NotNull(qr.Data);
         Assert.Equal(1, qr.Page?.PageNo);
         Assert.Equal(100, qr.Page?.PageSize);

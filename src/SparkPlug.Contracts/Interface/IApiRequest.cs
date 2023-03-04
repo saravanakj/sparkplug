@@ -8,11 +8,9 @@ public interface IApiRequest
 public interface IQueryRequest : IApiRequest
 {
     string[]? Select { get; set; }
-    IFilter? Where { get; set; }
-    IFilter? Having { get; set; }
-    string[]? Group { get; set; }
-    IOrder[]? Sort { get; set; }
-    IPageContext? Page { get; set; }
+    Filter? Where { get; set; }
+    Order[]? Sort { get; set; }
+    PageContext? Page { get; set; }
 }
 
 public interface ICommandRequest<TEntity> : IApiRequest

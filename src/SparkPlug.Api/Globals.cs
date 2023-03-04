@@ -27,11 +27,13 @@ global using Microsoft.AspNetCore.JsonPatch;
 global using Microsoft.AspNetCore.Mvc.Infrastructure;
 global using Swashbuckle.AspNetCore.SwaggerGen;
 global using Microsoft.Extensions.Diagnostics.HealthChecks;
+global using System.Text.Json.Serialization;
 global using Newtonsoft.Json;
 
 global using SparkPlug.Contracts;
 global using SparkPlug.Persistence.Abstractions;
 
+global using SparkPlug.Api;
 global using SparkPlug.Api.Controllers;
 global using SparkPlug.Api.Configuration;
 global using SparkPlug.Api.Middleware;

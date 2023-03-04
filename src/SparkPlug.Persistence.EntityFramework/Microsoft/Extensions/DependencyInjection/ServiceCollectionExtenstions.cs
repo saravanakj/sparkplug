@@ -2,26 +2,14 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class SqlServiceCollectionExtenstions
 {
-    public static void AddSqlDb(this IServiceCollection services, IConfiguration configuration, Func<SqlDbOptions, SqlDbOptions>? setupAction = default)
+    public static void AddSqlDb(this IServiceCollection services, IConfiguration configuration)
     {
-        var options = configuration.GetSection(SqlDbOptions.ConfigPath);
-        services.Configure<SqlDbOptions>(options);
-        var sqlOptions = options.Get<SqlDbOptions>() ?? throw new Exception("Sql Options not configured");
+        services.Configure<SqlDbOptions>(configuration.GetSection(SqlDbOptions.ConfigPath));
         services.AddScoped<SqlDbContextOptions>();
         services.AddDbContext<SqlDbContext>(ServiceLifetime.Scoped);
-        services.AddScoped(typeof(SqlRepository<,>));
         services.AddScoped<IRepositoryProvider, SqlRepositoryProvider>();
-        services.AddMvc()
-            .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-        if (setupAction != null)
-        {
-            sqlOptions = setupAction(sqlOptions);
-            if (sqlOptions.Connection == null)
-            {
-                throw new Exception("Connection is null");
-            }
-            services.AddHealthChecks().AddSqlDbCheck("SqlDb", sqlOptions.Connection, tags: new[] { "sqldb", "all" });
-        }
+        services.AddScoped(typeof(SqlRepository<,>));
+        services.AddHealthChecks().AddCheck<SqlDbHealthCheck>("SqlDb", tags: new[] { "sqldb", "all" });
     }
 
     public static void UseSqlDb(this IApplicationBuilder app, IServiceProvider serviceProvider)

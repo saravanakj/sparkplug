@@ -25,7 +25,7 @@ public class GlobalExceptionHandlingMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        _logger.LogError(exception.Message, exception);
+        _logger.LogError(WebApiConstants.LogErrorMessageTemplate, exception.Message, exception);
         var response = context.Response;
         response.StatusCode = StatusCodes.Status500InternalServerError;
         response.ContentType = WebApiConstants.ContentType;
