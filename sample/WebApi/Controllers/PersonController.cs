@@ -6,10 +6,10 @@ public class PersonController : BaseController<string, Person>
     public PersonController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     [HttpGet("name/{name}")]
-    public async Task<IActionResult> GetByName(String name)
+    public async Task<IActionResult> GetByName(string name, CancellationToken cancellationToken)
     {
         var req = new QueryRequest().Where("PersonName", FieldOperator.Equal, name);
-        var entities = await _repository.ListAsync(req);
+        var entities = await _repository.ListAsync(req, cancellationToken);
         return Ok(entities);
     }
 

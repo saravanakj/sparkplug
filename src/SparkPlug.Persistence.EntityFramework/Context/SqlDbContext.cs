@@ -7,6 +7,7 @@ public class SqlDbContext : DbContext
     public SqlDbContext(IServiceProvider serviceProvider, SqlDbContextOptions sqlOptions) : base(sqlOptions.Value)
     {
         _modelConfigurationProvider = serviceProvider.GetRequiredService<IModelConfigurationProvider>();
+        Database.EnsureCreated();
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

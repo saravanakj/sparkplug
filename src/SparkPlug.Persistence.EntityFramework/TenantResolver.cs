@@ -20,7 +20,7 @@ public class TenantResolver : ITenantResolver
         {
             if (!Guid.TryParse(id, out Guid gid)) { throw new ArgumentException($"{id} is not valid tenant id"); }
             var repo = _serviceProvider.GetRequiredService<Repository<Guid, TenantDetails>>();
-            var tenantDetails = await repo.GetAsync(gid);
+            var tenantDetails = await repo.GetAsync(gid, CancellationToken.None);
             tenantDetails.Options.ForEach(x => dict[x.Key] = x.Value);
             result = new Tenant() { Id = tenantDetails.Id.ToString(), Name = tenantDetails.Name, Options = dict };
         }

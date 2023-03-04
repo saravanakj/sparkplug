@@ -1,3 +1,4 @@
+using System.ComponentModel;
 namespace SparkPlug.Persistence.EntityFramework;
 
 public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEntity : class, IBaseEntity<TId>, new()
@@ -27,16 +28,15 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
         logger = serviceProvider.GetRequiredService<ILogger<SqlRepository<TId, TEntity>>>();
         requestContext = serviceProvider.GetRequiredService<IRequestContext<TId>>();
     }
-    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
+    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
         var query = GetQuery(request);
-        return (await query.ToListAsync(), await query.LongCountAsync());
+        return (await query.ToListAsync(cancellationToken), await query.LongCountAsync(cancellationToken));
     }
-    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
+    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        return await GetQuery(request).ToListAsync();
+        return await GetQuery(request).ToListAsync(cancellationToken);
     }
-
     public IQueryable<TEntity> GetQuery(IQueryRequest? request)
     {
         var query = GetDbSet().AsQueryable();
@@ -64,76 +64,76 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
         }
         return request?.Where == null ? query : query.Where(request.Where.GetFilterDefinition<TEntity>());
     }
-    public async Task<TEntity> GetAsync(TId id)
+    public async Task<TEntity> GetAsync(TId id, CancellationToken cancellationToken)
     {
         var tid = id ?? throw new QueryEntityException("Id is null");
-        var result = await DbSet.FindAsync(tid).ConfigureAwait(false);
+        var result = await DbSet.FindAsync(new object[] { tid }, cancellationToken).ConfigureAwait(false);
         return result ?? throw new QueryEntityException("Id is not found");
     }
-    public async Task<TEntity[]> GetManyAsync(TId[] ids)
+    public async Task<TEntity[]> GetManyAsync(TId[] ids, CancellationToken cancellationToken)
     {
         var tids = ids ?? throw new QueryEntityException("Ids are null or empty");
-        return await DbSet.Where(x => ids.Contains(x.Id)).ToArrayAsync();
+        return await DbSet.Where(x => ids.Contains(x.Id)).ToArrayAsync(cancellationToken);
     }
-    public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
+    public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         var entity = request.Data ?? throw new CreateEntityException("Entity is null");
-        entity = entity.Auditable<TId, TEntity>(requestContext.UserId, DateTime.UtcNow);
-        var entityEntry = await DbSet.AddAsync(entity);
-        await DbContext.SaveChangesAsync();
+        entity = entity.Auditable(requestContext.UserId, DateTime.UtcNow, true);
+        var entityEntry = await DbSet.AddAsync(entity, cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return entityEntry.Entity;
     }
-    public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
+    public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests, CancellationToken cancellationToken)
     {
         var entities = requests.Data ?? throw new CreateEntityException("Entities are null");
-        await DbSet.AddRangeAsync(entities.Select(x => x.Auditable<TId, TEntity>(requestContext.UserId, DateTime.UtcNow, true)));
-        await DbContext.SaveChangesAsync();
+        await DbSet.AddRangeAsync(entities.Select(x => x.Auditable(requestContext.UserId, DateTime.UtcNow, true)), cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return entities;
     }
-    public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
+    public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
         entity.Id = id ?? throw new UpdateEntityException("Id is null");
-        return await UpdateAsync(entity);
+        return await UpdateAsync(entity, cancellationToken);
     }
-    private async Task<TEntity> UpdateAsync(TEntity entity)
+    private async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        entity = entity.Auditable<TId, TEntity>(requestContext.UserId, DateTime.UtcNow);
+        entity = entity.Auditable(requestContext.UserId, DateTime.UtcNow);
         DbSet.Attach(entity);
         if (entity is IConcurrencyEntity obj) { obj.Revision++; }
         DbContext.Entry(entity).State = EntityState.Modified;
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    public async Task<TEntity> DeleteAsync(TId id)
+    public async Task<TEntity> DeleteAsync(TId id, CancellationToken cancellationToken)
     {
         var tid = id ?? throw new DeleteEntityException("Id is null");
-        TEntity entityToDelete = (await DbSet.FindAsync(tid)) ?? throw new DeleteEntityException("Id is invalid");
+        TEntity entityToDelete = (await DbSet.FindAsync(new object[] { tid }, cancellationToken)) ?? throw new DeleteEntityException("Id is invalid");
         entityToDelete = entityToDelete.Deletable<TId, TEntity>();
-        return await UpdateAsync(entityToDelete);
+        return await UpdateAsync(entityToDelete, cancellationToken);
     }
-    public async Task<long> GetCountAsync(IQueryRequest? request)
+    public async Task<long> GetCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        return await DbSet.LongCountAsync();
+        return await GetQuery(request).LongCountAsync(cancellationToken);
     }
-    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
+    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request, CancellationToken cancellationToken)
     {
         var patchDocument = request.Data ?? throw new UpdateEntityException("Entity is null");
         var tid = id ?? throw new UpdateEntityException("Id is null");
-        TEntity original = await GetAsync(tid);
+        TEntity original = await GetAsync(tid, cancellationToken);
         // patchDocument.Operations.Add(new Operation<TEntity>("replace", $"/{nameof(IAuditableEntity.ModifiedBy)}", null, _user.UserId));
         // patchDocument.Operations.Add(new Operation<TEntity>("replace", $"/{nameof(IAuditableEntity.ModifiedAt)}", null, DateTime.UtcNow));
         patchDocument.ApplyTo(original);
-        return await UpdateAsync(original);
+        return await UpdateAsync(original, cancellationToken);
     }
-    public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
+    public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
         var tid = id ?? throw new UpdateEntityException("Id is null");
-        var sourceEntity = await GetAsync(tid);
+        var sourceEntity = await GetAsync(tid, cancellationToken);
         sourceEntity = sourceEntity ?? throw new UpdateEntityException("Id is invalid");
         DbContext.Entry(sourceEntity).CurrentValues.SetValues(entity);
-        var modifyedCount = await DbContext.SaveChangesAsync();
+        var modifyedCount = await DbContext.SaveChangesAsync(cancellationToken);
         if (modifyedCount == 0) throw new UpdateEntityException("No records are replaced");
         return sourceEntity;
     }

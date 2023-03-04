@@ -26,7 +26,7 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         _logger = serviceProvider.GetRequiredService<ILogger<MongoRepository<TId, TEntity>>>();
         _requestContext = serviceProvider.GetRequiredService<IRequestContext<TId>>();
     }
-    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
+    public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
         var projection = GetProjection(request?.Select);
         var sort = GetSort(request?.Sort);
@@ -34,18 +34,18 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         var filter = GetFilterDefinition(request?.Where);
         return await GetAsync(projection, filter, sort, pc).ConfigureAwait(false);
     }
-    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
+    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        var entitiesTask = ListAsync(request);
-        var countTask = GetCountAsync(request);
+        var entitiesTask = ListAsync(request, cancellationToken);
+        var countTask = GetCountAsync(request, cancellationToken);
         await Task.WhenAll(entitiesTask, countTask).ConfigureAwait(false);
         return (entitiesTask.Result, countTask.Result);
     }
 
-    public async Task<TEntity> GetAsync(TId id)
+    public async Task<TEntity> GetAsync(TId id, CancellationToken cancellationToken)
     {
         var filter = GetIdFilterDefinition(id);
-        return await GetByFilter(filter).FirstOrDefaultAsync();
+        return await GetByFilter(filter).FirstOrDefaultAsync(cancellationToken);
     }
     public async Task<IEnumerable<TEntity>> GetAsync(ProjectionDefinition<TEntity>? projection, FilterDefinition<TEntity>? filter = default, SortDefinition<TEntity>? sorts = default, IPageContext? pc = default)
     {
@@ -62,25 +62,25 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
         }
         return await query.Skip(pc.Skip).Limit(pc.PageSize).ToListAsync();
     }
-    public async Task<TEntity[]> GetManyAsync(TId[] ids)
+    public async Task<TEntity[]> GetManyAsync(TId[] ids, CancellationToken cancellationToken)
     {
         var filter = GetFilterBuilder().In(x => x.Id, ids);
-        var result = await GetByFilter(filter).ToListAsync();
+        var result = await GetByFilter(filter).ToListAsync(cancellationToken);
         return result.ToArray();
     }
-    public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
+    public async Task<TEntity> CreateAsync(ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         var entity = request.Data ?? throw new CreateEntityException("Entity is null");
-        await Collection.InsertOneAsync(entity.Auditable<TId, TEntity>(_requestContext.UserId, DateTime.UtcNow, true));
+        await Collection.InsertOneAsync(entity.Auditable(_requestContext.UserId, DateTime.UtcNow, true), cancellationToken: cancellationToken);
         return entity;
     }
-    public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests)
+    public async Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> requests, CancellationToken cancellationToken)
     {
         var entities = requests.Data ?? throw new CreateEntityException("Entities are null");
-        await Collection.InsertManyAsync(entities.Select(x => x.Auditable<TId, TEntity>(_requestContext.UserId, DateTime.UtcNow, true)));
+        await Collection.InsertManyAsync(entities.Select(x => x.Auditable(_requestContext.UserId, DateTime.UtcNow, true)), cancellationToken: cancellationToken);
         return entities;
     }
-    public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
+    public async Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
         var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
@@ -94,34 +94,34 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
     {
         return await Collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = false });
     }
-    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
+    public async Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request, CancellationToken cancellationToken)
     {
         var patchDocument = request.Data ?? throw new UpdateEntityException("Entity is null");
         var filter = GetIdFilterDefinition(id);
-        var entity = await Collection.Find(filter).FirstOrDefaultAsync();
+        var entity = await Collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
         patchDocument.ApplyTo(entity);
-        await Collection.ReplaceOneAsync(filter, entity);
+        await Collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
         return entity;
     }
 
-    public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
+    public async Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
         id = id ?? throw new ArgumentNullException(nameof(id));
         var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
-        await Collection.ReplaceOneAsync(GetIdFilterDefinition(id), entity);
+        await Collection.ReplaceOneAsync(GetIdFilterDefinition(id), entity, cancellationToken: cancellationToken);
         return entity;
     }
-    public async Task<TEntity> DeleteAsync(TId id)
+    public async Task<TEntity> DeleteAsync(TId id, CancellationToken cancellationToken)
     {
         id = id ?? throw new DeleteEntityException("Id is null");
-        var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id));
+        var result = await Collection.DeleteOneAsync(GetIdFilterDefinition(id), cancellationToken);
         return result.IsAcknowledged && result.DeletedCount > 0 ? new TEntity() : throw new DeleteEntityException($"Nothing is deleted. Id={id}");
     }
-    public async Task<long> GetCountAsync(IQueryRequest? request)
+    public async Task<long> GetCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
         var filter = GetFilterDefinition(request?.Where) ?? GetFilterBuilder().Empty;
         var result = Collection.Find(filter);
-        return await result.CountDocumentsAsync().ConfigureAwait(false);
+        return await result.CountDocumentsAsync(cancellationToken).ConfigureAwait(false);
     }
     public UpdateDefinition<TEntity> GetUpdateDef(TEntity data, bool patch = false)
     {

@@ -15,57 +15,57 @@ public class Repository<TId, TEntity> : IRepository<TId, TEntity> where TEntity 
     public TService GetService<TService>() where TService : class
             => _serviceProvider.GetRequiredService<TService>();
 
-    public Task<TEntity> CreateAsync(ICommandRequest<TEntity> request)
+    public Task<TEntity> CreateAsync(ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
-        return _repository.CreateAsync(request);
+        return _repository.CreateAsync(request, cancellationToken);
     }
 
-    public Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> request)
+    public Task<TEntity[]> CreateManyAsync(ICommandRequest<TEntity[]> request, CancellationToken cancellationToken)
     {
-        return _repository.CreateManyAsync(request);
+        return _repository.CreateManyAsync(request, cancellationToken);
     }
 
-    public Task<TEntity> DeleteAsync(TId id)
+    public Task<TEntity> DeleteAsync(TId id, CancellationToken cancellationToken)
     {
-        return _repository.DeleteAsync(id);
+        return _repository.DeleteAsync(id, cancellationToken);
     }
 
-    public Task<TEntity> GetAsync(TId id)
+    public Task<TEntity> GetAsync(TId id, CancellationToken cancellationToken)
     {
-        return _repository.GetAsync(id);
+        return _repository.GetAsync(id, cancellationToken);
     }
 
-    public Task<long> GetCountAsync(IQueryRequest? request)
+    public Task<long> GetCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        return _repository.GetCountAsync(request);
+        return _repository.GetCountAsync(request, cancellationToken);
     }
 
-    public Task<TEntity[]> GetManyAsync(TId[] ids)
+    public Task<TEntity[]> GetManyAsync(TId[] ids, CancellationToken cancellationToken)
     {
-        return _repository.GetManyAsync(ids);
+        return _repository.GetManyAsync(ids, cancellationToken);
     }
 
-    public Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
+    public Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        return _repository.ListAsync(request);
+        return _repository.ListAsync(request, cancellationToken);
     }
-    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
+    public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        return await _repository.ListWithCountAsync(request);
-    }
-
-    public Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request)
-    {
-        return _repository.PatchAsync(id, request);
+        return await _repository.ListWithCountAsync(request, cancellationToken);
     }
 
-    public Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request)
+    public Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request, CancellationToken cancellationToken)
     {
-        return _repository.ReplaceAsync(id, request);
+        return _repository.PatchAsync(id, request, cancellationToken);
     }
 
-    public Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request)
+    public Task<TEntity> ReplaceAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
     {
-        return _repository.UpdateAsync(id, request);
+        return _repository.ReplaceAsync(id, request, cancellationToken);
+    }
+
+    public Task<TEntity> UpdateAsync(TId id, ICommandRequest<TEntity> request, CancellationToken cancellationToken)
+    {
+        return _repository.UpdateAsync(id, request, cancellationToken);
     }
 }
