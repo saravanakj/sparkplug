@@ -1,7 +1,7 @@
 namespace SparkPlug.Sample.WebApi.Models;
 
 [Api("person", typeof(ApiController<,>))]
-public class Person : BaseEntity<long>, IConcurrencyEntity
+public class Person : BaseEntity<long>, IConcurrencyEntity, IAuditableEntity<long>
 {
     public string? PersonName { get; set; }
     public string? Department { get; set; }
@@ -11,9 +11,13 @@ public class Person : BaseEntity<long>, IConcurrencyEntity
     public string? MobileNo { get; set; }
     [ConcurrencyCheck]
     public int Revision { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public long CreatedBy { get; set; }
+    public DateTime ModifiedAt { get; set; }
+    public long ModifiedBy { get; set; }
 }
 
-public class Address : BaseEntity<long>, IConcurrencyEntity
+public class Address : BaseEntity<long>, IConcurrencyEntity, IAuditableEntity<long>
 {
     public string? FlatNo { get; set; }
     public string? Street { get; set; }
@@ -24,4 +28,8 @@ public class Address : BaseEntity<long>, IConcurrencyEntity
     public Person? Person { get; set; }
     [ConcurrencyCheck]
     public int Revision { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public long CreatedBy { get; set; }
+    public DateTime ModifiedAt { get; set; }
+    public long ModifiedBy { get; set; }
 }

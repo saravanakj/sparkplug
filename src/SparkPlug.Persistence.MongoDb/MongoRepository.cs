@@ -4,7 +4,7 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
 {
     internal readonly MongoDbClient _context;
     internal readonly ILogger<MongoRepository<TId, TEntity>> _logger;
-    internal readonly IRequestContext _requestContext;
+    internal readonly IRequestContext<TId> _requestContext;
     private IMongoCollection<TEntity>? _collection;
     public virtual IMongoCollection<TEntity> Collection
     {
@@ -24,7 +24,7 @@ public class MongoRepository<TId, TEntity> : IRepository<TId, TEntity> where TEn
     {
         _context = serviceProvider.GetRequiredService<MongoDbClient>();
         _logger = serviceProvider.GetRequiredService<ILogger<MongoRepository<TId, TEntity>>>();
-        _requestContext = serviceProvider.GetRequiredService<IRequestContext>();
+        _requestContext = serviceProvider.GetRequiredService<IRequestContext<TId>>();
     }
     public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request)
     {

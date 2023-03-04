@@ -4,7 +4,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
 {
     public SqlDbContext DbContext { get; }
     internal readonly ILogger<SqlRepository<TId, TEntity>> logger;
-    internal readonly IRequestContext requestContext;
+    internal readonly IRequestContext<TId> requestContext;
     private DbSet<TEntity>? _dbSet;
     public virtual DbSet<TEntity> DbSet
     {
@@ -25,7 +25,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     {
         DbContext = serviceProvider.GetRequiredService<SqlDbContext>();
         logger = serviceProvider.GetRequiredService<ILogger<SqlRepository<TId, TEntity>>>();
-        requestContext = serviceProvider.GetRequiredService<IRequestContext>();
+        requestContext = serviceProvider.GetRequiredService<IRequestContext<TId>>();
     }
     public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request)
     {
@@ -58,7 +58,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
                 var parameterExp = Expression.Parameter(TEntityType, "entity");
                 var propertyExp = Expression.Property(parameterExp, order.Field);
                 var lambdaExp = Expression.Lambda<Func<TEntity, object>>(Expression.Convert(propertyExp, typeof(object)), parameterExp);
-                return order.Direction == Direction.Ascending ? orderedQuery.ThenBy(lambdaExp) : orderedQuery.ThenByDescending(lambdaExp);
+                orderedQuery = order.Direction == Direction.Ascending ? orderedQuery.ThenBy(lambdaExp) : orderedQuery.ThenByDescending(lambdaExp);
             }
             query = orderedQuery;
         }

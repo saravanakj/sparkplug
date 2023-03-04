@@ -6,7 +6,7 @@ public sealed class ApiController<TId, TEntity> : BaseController<TId, TEntity> w
     public ApiController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     [HttpGet]
-    public async Task<IActionResult> List([FromQuery] int? pageNo, [FromQuery] int? pageSize)
+    public async Task<IActionResult> List([FromQuery] int? pageNo, [FromQuery] int? pageSize, CancellationToken cancellationToken)
     {
         return await Search(new QueryRequest(new PageContext(pageNo ?? 1, pageSize ?? 25)));
     }

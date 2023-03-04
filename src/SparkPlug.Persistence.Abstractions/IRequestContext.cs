@@ -1,6 +1,6 @@
 namespace SparkPlug.Persistence.Abstractions;
 
-public interface IRequestContext
+public interface IRequestContext<TId>
 {
-    public string UserId { get; }
+    public TId UserId { get; }
 }

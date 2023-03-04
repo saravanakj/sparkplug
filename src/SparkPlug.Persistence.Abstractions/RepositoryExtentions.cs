@@ -1,9 +1,9 @@
 namespace SparkPlug.Persistence.Abstractions;
 public static class RepositoryExtentions
 {
-    public static TEntity Auditable<TId, TEntity>(this TEntity entity, object userId, DateTime currentTime, bool isCreate = false) where TEntity : class, IBaseEntity<TId>
+    public static TEntity Auditable<TId, TEntity>(this TEntity entity, TId userId, DateTime currentTime, bool isCreate = false) where TEntity : class, IBaseEntity<TId>
     {
-        if (entity is IAuditableEntity obj)
+        if (entity is IAuditableEntity<TId> obj)
         {
             if (isCreate)
             {
@@ -11,7 +11,7 @@ public static class RepositoryExtentions
                 obj.CreatedBy = userId;
             }
             obj.ModifiedAt = DateTime.UtcNow;
-            obj.ModifiedBy = currentTime;
+            obj.ModifiedBy = userId;
         }
         return entity;
     }

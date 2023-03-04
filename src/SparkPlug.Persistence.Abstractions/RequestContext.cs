@@ -1,7 +1,7 @@
 namespace SparkPlug.Persistence.Abstractions;
 
-public class RequestContext : IRequestContext
+public class RequestContext<TId> : IRequestContext<TId> where TId : new()
 {
-    public static RequestContext Default { get => new(); }
-    public string UserId { get; set; } = string.Empty;
+    public static RequestContext<TId> Default { get => new(); }
+    public TId UserId { get; set; } = new();
 }

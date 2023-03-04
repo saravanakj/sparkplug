@@ -1,9 +1,9 @@
 namespace SparkPlug.Persistence.Abstractions;
 
-public interface IAuditableEntity
+public interface IAuditableEntity<TId>
 {
     DateTime CreatedAt { get; set; }
-    object CreatedBy { get; set; }
+    TId CreatedBy { get; set; }
     DateTime ModifiedAt { get; set; }
-    object ModifiedBy { get; set; }
+    TId ModifiedBy { get; set; }
 }

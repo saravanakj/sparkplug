@@ -7,7 +7,7 @@ public static class ApiServiceCollectionExtenstions
         services.AddHttpContextAccessor();
         services.AddOptions();
         services.Configure<WebApiOptions>(configuration.GetSection(WebApiOptions.ConfigPath));
-        services.AddScoped<IRequestContext, RequestContext>();
+        services.AddScoped(typeof(IRequestContext<>), typeof(RequestContext<>));
         services.AddScoped(typeof(Repository<,>));
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         services.AddScoped(typeof(ITenantOptions<>), typeof(TenantOptionsManager<>));
