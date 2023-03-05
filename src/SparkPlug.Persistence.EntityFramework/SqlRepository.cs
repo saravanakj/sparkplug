@@ -30,6 +30,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public async Task<(IEnumerable<TEntity>, long)> ListWithCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
         var query = GetQuery(request);
+        logger.LogInformation("Search Query: {query}", query.ToQueryString());
         return (await query.ToListAsync(cancellationToken), await query.LongCountAsync(cancellationToken));
     }
     public async Task<IEnumerable<TEntity>> ListAsync(IQueryRequest? request, CancellationToken cancellationToken)
@@ -39,29 +40,14 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public IQueryable<TEntity> GetQuery(IQueryRequest? request)
     {
         var query = GetDbSet().AsQueryable().AsNoTracking();
-        var TEntityType = typeof(TEntity);
-        var ObjectType = typeof(object);
-        if (request?.Select != null && request.Select.Any())
+        if (request != null)
         {
-            var properties = TEntityType.GetProperties().Where(prop => request.Select.Contains(prop.Name));
-            var parameter = Expression.Parameter(TEntityType, "entity");
-            var propertyBindings = properties.Select(property => Expression.Bind(property, Expression.MakeMemberAccess(parameter, property)));
-            var selector = Expression.Lambda<Func<TEntity, TEntity>>(Expression.MemberInit(Expression.New(TEntityType), propertyBindings), parameter);
-            query = query.Select(selector);
+            query = request.Select?.Any() == true ? request.Select.GetSelector(query) : query;
+            query = request.Sort?.Any() == true ? request.Sort.GetSort(query) : query;
+            query = request.Where != null ? request.Where.GetWhere(query) : query;
+            query = request.Page != null ? request.Page.GetPageContext(query) : query;
         }
-        if (request?.Sort?.Length > 0)
-        {
-            var orderedQuery = query.OrderBy(_ => 0);
-            foreach (var order in request.Sort)
-            {
-                var parameterExp = Expression.Parameter(TEntityType, "entity");
-                var propertyExp = Expression.Property(parameterExp, order.Field);
-                var lambdaExp = Expression.Lambda<Func<TEntity, object>>(Expression.Convert(propertyExp, typeof(object)), parameterExp);
-                orderedQuery = order.Direction == Direction.Ascending ? orderedQuery.ThenBy(lambdaExp) : orderedQuery.ThenByDescending(lambdaExp);
-            }
-            query = orderedQuery;
-        }
-        return request?.Where == null ? query : query.Where(request.Where.GetFilterDefinition<TEntity>());
+        return query;
     }
     public async Task<TEntity> GetAsync(TId id, CancellationToken cancellationToken)
     {
@@ -138,6 +124,39 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
 
 public static class Extention
 {
+    public static IQueryable<TEntity> GetWhere<TEntity>(this Filter filter, IQueryable<TEntity> query)
+    {
+        var where = filter.GetFilterDefinition<TEntity>();
+        return query.Where(where);
+    }
+
+    public static IQueryable<TEntity> GetSelector<TEntity>(this string[] select, IQueryable<TEntity> query)
+    {
+        var TEntityType = typeof(TEntity);
+        var properties = TEntityType.GetProperties().Where(prop => select.Contains(prop.Name));
+        var parameter = Expression.Parameter(TEntityType, "select");
+        var propertyBindings = properties.Select(property => Expression.Bind(property, Expression.MakeMemberAccess(parameter, property)));
+        var selector = Expression.Lambda<Func<TEntity, TEntity>>(Expression.MemberInit(Expression.New(TEntityType), propertyBindings), parameter);
+        return query.Select(selector);
+    }
+    public static IQueryable<TEntity> GetSort<TEntity>(this Order[] sort, IQueryable<TEntity> query)
+    {
+        var orderedQuery = query.OrderBy(_ => 0);
+        foreach (var order in sort)
+        {
+            var parameterExp = Expression.Parameter(typeof(TEntity), "sort");
+            var propertyExp = Expression.Property(parameterExp, order.Field);
+            var lambdaExp = Expression.Lambda<Func<TEntity, object>>(Expression.Convert(propertyExp, typeof(object)), parameterExp);
+            orderedQuery = order.Direction == Direction.Ascending ? orderedQuery.ThenBy(lambdaExp) : orderedQuery.ThenByDescending(lambdaExp);
+        }
+        return orderedQuery;
+    }
+
+    public static IQueryable<TEntity> GetPageContext<TEntity>(this PageContext pageContext, IQueryable<TEntity> query)
+    {
+        return query.Skip(pageContext.Skip).Take(pageContext.PageSize);
+    }
+
     public static IEnumerable<Expression<Func<TEntity, bool>>> GetFilterDefinitions<TEntity>(this IFilter[] filters)
     {
         return filters.Select(x => x.GetFilterDefinition<TEntity>()).ToArray();
@@ -152,33 +171,33 @@ public static class Extention
             IUnaryFilter unaryFilter => unaryFilter.GetFilterDefinition<TEntity>(),
             _ => throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported")
         };
-        // var result = filter.FilterType switch
-        // {
-        //     FilterType.Composite => ((CompositeFilter)filter).GetFilterDefinition<TEntity>(),
-        //     FilterType.Field => ((FieldFilter)filter).GetFilterDefinition<TEntity>(),
-        //     FilterType.Unary => ((UnaryFilter)filter).GetFilterDefinition<TEntity>(),
-        //     _ => throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported")
-        // };
-        // Expression<Func<TEntity, bool>> p = (e) => e != null;
-        // return result ?? p;
     }
 
     public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this ICompositeFilter compositeFilter)
     {
-        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var parameter = Expression.Parameter(typeof(TEntity), "cfilter");
         var expression = compositeFilter.Op switch
         {
-            CompositeOperator.And => compositeFilter.Filters?.GetFilterDefinitions<TEntity>().Aggregate((a, b) => Expression.Lambda<Func<TEntity, bool>>(Expression.AndAlso(a, b), parameter)),
-            CompositeOperator.Or => compositeFilter.Filters?.GetFilterDefinitions<TEntity>().Aggregate((a, b) => Expression.Lambda<Func<TEntity, bool>>(Expression.AndAlso(a, b), parameter)),
+            CompositeOperator.And => compositeFilter.Filters?.GetFilterDefinitions<TEntity>().MergeExpressions(CompositeOperator.And),
+            CompositeOperator.Or => compositeFilter.Filters?.GetFilterDefinitions<TEntity>().MergeExpressions(CompositeOperator.Or),
             _ => throw new QueryEntityException("Invalid composite filter operation")
         };
-        Expression<Func<TEntity, bool>> p = (_) => true;
-        return expression ?? p;
+        Expression<Func<TEntity, bool>> defaultExp = (_) => true;
+        return expression ?? defaultExp;
     }
-
+    public static Expression<Func<TEntity, bool>> MergeExpressions<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions, CompositeOperator op)
+    {
+        Expression<Func<TEntity, bool>> result = expressions.First();
+        foreach (var expression in expressions.Skip(1))
+        {
+            var invokedExpr = Expression.Invoke(expression, result.Parameters.Cast<Expression>());
+            result = Expression.Lambda<Func<TEntity, bool>>(CompositeOperator.And == op ? Expression.AndAlso(result.Body, invokedExpr) : Expression.OrElse(result.Body, invokedExpr), result.Parameters);
+        }
+        return result;
+    }
     public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this IFieldFilter fieldFilter)
     {
-        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var parameter = Expression.Parameter(typeof(TEntity), "ffilter");
         var left = Expression.Property(parameter, fieldFilter.Field);
         var right = Expression.Constant(fieldFilter.Value);
         Expression body = fieldFilter.Op switch
@@ -198,7 +217,7 @@ public static class Extention
 
     public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this IUnaryFilter unaryFilter)
     {
-        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var parameter = Expression.Parameter(typeof(TEntity), "ufilter");
         var left = Expression.Property(parameter, unaryFilter.Field);
         var right = Expression.Constant(unaryFilter.Op == UnaryOperator.IsNull ? null : DBNull.Value);
         var body = unaryFilter.Op == UnaryOperator.IsNull ? Expression.Equal(left, right) : Expression.NotEqual(left, right);

@@ -20,10 +20,10 @@ public class FilterConverter : JsonConverter
                 obj.GetValue("filters")?.ToObject<Filter[]>(serializer) ?? throw new Exception("filters not spacified")
              ),
             FilterType.Field => new FieldFilter(
-                 obj.GetValue("field")?.ToObject<string>() ?? throw new Exception("Field not spacified"),
-                    obj.GetValue("op")?.ToObject<FieldOperator>() ?? throw new Exception("Operator not spacified"),
-                    obj.GetValue("value")?.ToObject<object>() ?? throw new Exception("value not spacified")
-                ),
+                obj.GetValue("field")?.ToObject<string>() ?? throw new Exception("Field not spacified"),
+                obj.GetValue("op")?.ToObject<FieldOperator>() ?? throw new Exception("Operator not spacified"),
+                obj.GetValue("value")?.ToObject<object>() ?? throw new Exception("value not spacified")
+            ),
             FilterType.Unary => new UnaryFilter(
                 obj.GetValue("field")?.ToObject<string>() ?? throw new Exception("Field not spacified"),
                 obj.GetValue("op")?.ToObject<UnaryOperator>() ?? throw new Exception("Operator not spacified")
