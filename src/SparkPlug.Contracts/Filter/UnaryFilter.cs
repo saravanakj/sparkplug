@@ -6,13 +6,12 @@ public enum UnaryOperator
     IsNotNull
 }
 
-public class UnaryFilter : Filter, IUnaryFilter
+public class UnaryFilter : ConditionFilter, IUnaryFilter
 {
-    public UnaryFilter(String field, UnaryOperator op)
+    public UnaryFilter(string field, UnaryOperator op) : base(field, FilterType.Unary)
     {
         Op = op;
         Field = field;
     }
     public UnaryOperator Op { get; set; }
-    public string Field { get; set; }
 }

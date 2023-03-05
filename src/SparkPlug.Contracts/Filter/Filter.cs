@@ -1,5 +1,11 @@
 namespace SparkPlug.Contracts;
 
-public class Filter : Dictionary<string, object>, IFilter
+[JsonConverter(typeof(FilterConverter))]
+public class Filter : JObject, IFilter
 {
+    public Filter(FilterType filterType)
+    {
+        FilterType = filterType;
+    }
+    public FilterType FilterType { get; set; }
 }

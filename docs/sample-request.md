@@ -6,37 +6,14 @@
       "PersonName", "Department", "Salary", "Id"
   ],
   "where": {
-   "field": "PersonName",
-   "op": 0,
-   "value": "Demo"
-},
-  "sort": [
-    {
-      "field": "PersonName",
-      "direction": 1
-    }, {
-      "field": "Salary",
-      "direction": 1
-    }
-  ],
-  "page": {
-    "pageNo": 2,
-    "pageSize": 10
-  }
-}
-
-
-{
-  "select": [
-      "PersonName", "Department", "Salary", "Id"
-  ],
-  "where": {
      "op": 0,
+     "filterType": 0,
      "filters": [{
-       "field": "PersonName",
-       "op": 0,
-       "value": "Demo"
-   }],
+        "filterType": 1,
+        "field": "PersonName",
+        "op": 0,
+        "value": "Demo"
+      }]
   },
   "sort": [
     {
@@ -52,4 +29,5 @@
     "pageSize": 0
   }
 }
+
 ```

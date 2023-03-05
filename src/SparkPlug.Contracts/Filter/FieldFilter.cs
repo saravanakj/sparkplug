@@ -12,15 +12,13 @@ public enum FieldOperator
     NotIn
 }
 
-public class FieldFilter : Filter, IFieldFilter
+public class FieldFilter : ConditionFilter, IFieldFilter
 {
-    public FieldFilter(string field, FieldOperator op, object value)
+    public FieldFilter(string field, FieldOperator op, object value) : base(field, FilterType.Field)
     {
         Op = op;
-        Field = field;
         Value = value;
     }
     public FieldOperator Op { get; set; }
-    public string Field { get; set; }
     public object? Value { get; set; }
 }

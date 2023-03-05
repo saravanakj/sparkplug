@@ -27,6 +27,6 @@ public class SqlDbContext : DbContext
             entry.Property(nameof(IAuditableEntity<TId>.ModifiedAt)).CurrentValue = dateTime;
             entry.Property(nameof(IAuditableEntity<TId>.ModifiedBy)).CurrentValue = id;
         }
-        return await SaveChangesAsync(cancellationToken);
+        return await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

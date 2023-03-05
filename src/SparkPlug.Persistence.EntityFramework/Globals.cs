@@ -15,6 +15,7 @@ global using Microsoft.AspNetCore.JsonPatch;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Options;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Newtonsoft.Json;
 
 global using SparkPlug.Contracts;
 global using SparkPlug.Persistence.Abstractions;

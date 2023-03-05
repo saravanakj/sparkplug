@@ -1,12 +1,19 @@
 namespace SparkPlug.Contracts;
 
+public enum FilterType
+{
+    Composite,
+    Field,
+    Unary
+}
 public interface IFilter
 {
+    FilterType FilterType { get; set; }
 }
 public interface ICompositeFilter : IFilter
 {
     CompositeOperator Op { get; set; }
-    IFilter[]? Filters { get; set; }
+    Filter[]? Filters { get; set; }
 }
 
 public interface IConditionFilter : IFilter

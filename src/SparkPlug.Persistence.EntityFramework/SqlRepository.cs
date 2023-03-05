@@ -105,13 +105,13 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     public async Task<TEntity> DeleteAsync(TId id, CancellationToken cancellationToken)
     {
         var tid = id ?? throw new DeleteEntityException("Id is null");
-        TEntity entityToDelete = (await DbSet.FindAsync(new object[] { tid }, cancellationToken)) ?? throw new DeleteEntityException("Id is invalid");
+        TEntity entityToDelete = (await DbSet.FindAsync(new object[] { tid }, cancellationToken).ConfigureAwait(false)) ?? throw new DeleteEntityException("Id is invalid");
         if (entityToDelete is IDeletableEntity obj) { obj.Status = Status.Deleted; }
         return await UpdateAsync(entityToDelete, cancellationToken);
     }
     public async Task<long> GetCountAsync(IQueryRequest? request, CancellationToken cancellationToken)
     {
-        return await GetQuery(request).LongCountAsync(cancellationToken);
+        return await GetQuery(request).LongCountAsync(cancellationToken).ConfigureAwait(false);
     }
     public async Task<TEntity> PatchAsync(TId id, ICommandRequest<JsonPatchDocument<TEntity>> request, CancellationToken cancellationToken)
     {
@@ -127,7 +127,7 @@ public class SqlRepository<TId, TEntity> : IRepository<TId, TEntity> where TEnti
     {
         var entity = request.Data ?? throw new UpdateEntityException("Entity is null");
         var tid = id ?? throw new UpdateEntityException("Id is null");
-        var sourceEntity = await GetAsync(tid, cancellationToken);
+        var sourceEntity = await GetAsync(tid, cancellationToken).ConfigureAwait(false);
         sourceEntity = sourceEntity ?? throw new UpdateEntityException("Id is invalid");
         DbContext.Entry(sourceEntity).CurrentValues.SetValues(entity);
         var modifyedCount = await DbContext.SaveChangesAsync(requestContext.UserId, cancellationToken);
@@ -152,6 +152,15 @@ public static class Extention
             IUnaryFilter unaryFilter => unaryFilter.GetFilterDefinition<TEntity>(),
             _ => throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported")
         };
+        // var result = filter.FilterType switch
+        // {
+        //     FilterType.Composite => ((CompositeFilter)filter).GetFilterDefinition<TEntity>(),
+        //     FilterType.Field => ((FieldFilter)filter).GetFilterDefinition<TEntity>(),
+        //     FilterType.Unary => ((UnaryFilter)filter).GetFilterDefinition<TEntity>(),
+        //     _ => throw new NotSupportedException($"Filter type {filter.GetType().Name} is not supported")
+        // };
+        // Expression<Func<TEntity, bool>> p = (e) => e != null;
+        // return result ?? p;
     }
 
     public static Expression<Func<TEntity, bool>> GetFilterDefinition<TEntity>(this ICompositeFilter compositeFilter)
